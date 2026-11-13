@@ -1,0 +1,12 @@
+{
+  "name": "floatmine-local-mirror",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "mirror": "node scripts/mirror.mjs"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  }
+}

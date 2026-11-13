@@ -1,0 +1,79 @@
+{
+  "results": [
+    {
+      "path": "/",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "First mining tech on Float.",
+      "textLength": 2328,
+      "viewLength": 16970,
+      "canvas": [
+        [
+          300,
+          150
+        ],
+        [
+          598,
+          398
+        ]
+      ],
+      "brokenImages": []
+    },
+    {
+      "path": "/create",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Launch a mine on Float",
+      "textLength": 5479,
+      "viewLength": 59227,
+      "canvas": [],
+      "brokenImages": []
+    },
+    {
+      "path": "/tokens",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Every coin here mines $FLOAT.",
+      "textLength": 500,
+      "viewLength": 4320,
+      "canvas": [],
+      "brokenImages": []
+    },
+    {
+      "path": "/mines",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Mines",
+      "textLength": 1058,
+      "viewLength": 6656,
+      "canvas": [],
+      "brokenImages": []
+    },
+    {
+      "path": "/profile",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Profile",
+      "textLength": 121,
+      "viewLength": 199,
+      "canvas": [],
+      "brokenImages": []
+    },
+    {
+      "path": "/docs",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Docs",
+      "textLength": 3332,
+      "viewLength": 4121,
+      "canvas": [],
+      "brokenImages": []
+    },
+    {
+      "path": "/terms",
+      "title": "Floatmine · First mining tech on Float",
+      "heading": "Terms of Use",
+      "textLength": 594,
+      "viewLength": 640,
+      "canvas": [],
+      "brokenImages": []
+    }
+  ],
+  "failures": [],
+  "badResponses": [],
+  "exceptions": []
+}
