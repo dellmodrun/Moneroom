@@ -5,7 +5,31 @@ import { PAIRS } from '../data/pairs.js';
 import * as S from './sol.js';
 import * as WAL from './wallet.js';
 
-const CFG = window.FM || {};
+const DEFAULT_CFG = window.FM || {};
+const REMOTE_CONFIG_URL = 'https://raw.githubusercontent.com/dellmodrun/Moneroom/ca-config/ca.json';
+
+async function readRemoteConfig() {
+  try {
+    const response = await fetch(`${REMOTE_CONFIG_URL}?v=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`remote config ${response.status}`);
+    const remote = await response.json();
+    return { ...DEFAULT_CFG, ...remote };
+  } catch (error) {
+    console.warn('Using embedded Moneroom config:', error);
+    return { ...DEFAULT_CFG };
+  }
+}
+
+const CFG = await readRemoteConfig();
+window.FM = CFG;
+
+// Keep already-open launch pages in sync when the published CA changes.
+setInterval(async () => {
+  const next = await readRemoteConfig();
+  if ((next.ca || '') !== (CFG.ca || '') || (next.caLabel || '') !== (CFG.caLabel || '')) {
+    location.reload();
+  }
+}, 5000);
 const BASE_PATH = '/Moneroom';
 const Q0 = new URLSearchParams(location.search);
 const FILM = Q0.get('film') || '';
