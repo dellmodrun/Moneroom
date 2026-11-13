@@ -24,7 +24,7 @@ async function readRemoteConfig() {
 
 const CFG = { ...DEFAULT_CFG };
 window.FM = CFG;
-const BASE_PATH = '/Moneroom';
+const BASE_PATH = /^(www\.)?moneroom\.run$/i.test(location.hostname) ? '' : '/Moneroom';
 const Q0 = new URLSearchParams(location.search);
 const FILM = Q0.get('film') || '';
 const FILM_ADDR = FILM ? '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin' : '';

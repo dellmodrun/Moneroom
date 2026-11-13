@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<base href="/Moneroom/">
+<base id="app-base" href="/Moneroom/">
+<script>if (/^(www\.)?moneroom\.run$/i.test(location.hostname)) document.getElementById('app-base').href = '/';</script>
 <title>Moneroom · Public launch, private mining</title>
 <meta name="description" content="Launch on Pump.fun. Creator rewards fund RandomX mining, and holders receive XMR through private settlement.">
 <meta name="theme-color" content="#050403">
@@ -18,7 +19,7 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/mine.css">
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
-<script>window.FM = {"ca": "", "caLabel": "TBA", "x": "moneroomine", "domain": "dellmodrun.github.io/Moneroom"};</script>
+<script>window.FM = {"ca": "", "caLabel": "TBA", "x": "moneroomine", "domain": "moneroom.run"};</script>
 </head>
 <body>
 <header class="hdr">
