@@ -271,6 +271,22 @@ textarea.inp { height: 5.25rem; padding: .75rem 1rem; resize: vertical; }
 .drop:hover, .drop.over { border-color: var(--line-strong); }
 .drop img { width: 28px; height: 28px; border-radius: .4rem; object-fit: cover; }
 .drop.has { color: var(--text); }
+.launch-upload { margin-top: 1rem; min-height: 5rem; display: flex; align-items: center; gap: .875rem; width: 100%; border-radius: .875rem; border: 1px dashed var(--line-strong); background: linear-gradient(135deg, rgba(255,106,0,.055), rgba(255,255,255,.018)); padding: .875rem 1rem; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
+.launch-upload:hover { border-color: var(--accent); background: rgba(255,106,0,.08); }
+.launch-upload:active { transform: translateY(1px); }
+.launch-upload input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.launch-upload-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; overflow: hidden; border-radius: .75rem; border: 1px solid var(--line); background: var(--surface); color: var(--accent); }
+.launch-upload-icon svg { width: 1.15rem; height: 1.15rem; }
+.launch-upload-icon img { width: 100%; height: 100%; object-fit: cover; }
+.launch-upload-copy { min-width: 0; display: grid; gap: .15rem; text-align: left; }
+.launch-upload-copy b { overflow: hidden; color: var(--text); font-size: .875rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.launch-upload-copy small { color: var(--muted); font-size: .72rem; }
+.launch-upload-action { margin-left: auto; flex: none; border-radius: 9999px; border: 1px solid var(--line); background: var(--surface); padding: .42rem .7rem; color: var(--text); font-size: .72rem; font-weight: 650; }
+.project-links { margin-top: 1rem; display: grid; gap: .75rem; }
+.project-links label { min-width: 0; }
+.project-links label > span { display: block; margin: 0 0 .4rem .1rem; color: var(--muted); font-size: .7rem; font-weight: 600; }
+@media (min-width: 640px) { .project-links { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .launch-upload-action { display: none; } .launch-upload { padding: .8rem; } }
 .cnt { margin-top: .25rem; text-align: right; font-size: .75rem; color: var(--faint); }
 .wrow { margin-top: .75rem; display: flex; align-items: center; gap: .5rem; height: 2.75rem; border-radius: .75rem; border: 1px solid var(--line); background: var(--surface); padding: 0 1rem; font-size: .875rem; color: var(--muted); }
 .wrow .tag { border-radius: 9999px; border: 1px solid var(--line-strong); padding: .1rem .5rem; font-size: .75rem; color: var(--text); }
@@ -280,6 +296,12 @@ textarea.inp { height: 5.25rem; padding: .75rem 1rem; resize: vertical; }
 .err { margin-top: .5rem; font-size: .75rem; color: var(--bad); }
 .review { padding: 1.25rem; }
 @media (min-width: 1024px) { .review { position: sticky; top: 1rem; } }
+.launch-review { min-width: 0; }
+@media (min-width: 1024px) { .launch-review { position: sticky; top: 1rem; } }
+.review-in { overflow: hidden; padding: 1.35rem; box-shadow: 0 24px 70px -45px rgba(255,106,0,.65); }
+.review-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.review-title p { margin-top: .3rem; color: var(--muted); font-size: .72rem; line-height: 1.45; }
+.review-title > span { flex: none; border-radius: 9999px; border: 1px solid var(--line-strong); background: rgba(255,106,0,.07); padding: .25rem .5rem; color: var(--accent); font-family: var(--mono); font-size: .62rem; font-weight: 700; letter-spacing: .08em; }
 .rv-k { font-size: .75rem; font-weight: 600; letter-spacing: .2em; color: var(--muted); }
 .rv-coin { margin-top: 1rem; display: flex; align-items: center; gap: .75rem; border-radius: .75rem; border: 1px solid var(--line); background: var(--surface); padding: .75rem; }
 .rv-coin .ph { display: flex; width: 2.75rem; height: 2.75rem; align-items: center; justify-content: center; border-radius: 9999px; background: var(--card-hover); color: var(--muted); font-weight: 700; overflow: hidden; flex: none; }

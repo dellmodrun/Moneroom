@@ -34,6 +34,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const short = (a, n = 6) => a ? (a.length > 2 * n + 1 ? a.slice(0, n) + '…' + a.slice(-n) : a) : '';
 const VIEW = $('#view');
+const HOME_HERO_HTML = $('#home-hero')?.outerHTML || '';
 const FMAPP = window.FMAPP = {};
 const byId = new Map(PAIRS.map(p => [p.id, p]));
 const byMint = new Map(); PAIRS.forEach(p => { if (!byMint.has(p.mint)) byMint.set(p.mint, p); });
@@ -106,7 +107,7 @@ function closeModal() { $('#scrim').classList.remove('on'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 document.addEventListener('click', e => { const c = e.target.closest('[data-copy]'); if (c) { e.preventDefault(); e.stopPropagation(); copy(c.dataset.copy); } });
 
-// ---------------------------------------------------------------- live data: launched coins, RandomX routes and XMR market
+// ---------------------------------------------------------------- live data: launched coins, RandomX pools and XMR market
 const live = { coins: [], pools: null, net: null, xmr: null, xmrCs: null, own: null, ownK: '', subs: new Set() };
 const emit = k => live.subs.forEach(f => { try { f(k); } catch (e) { console.warn(e); } });
 async function refreshCoins() { live.coins = []; emit('coins'); }
@@ -236,7 +237,7 @@ function ownCard() {
     : `<div class="cc live own soon" aria-label="$${esc(tk)} is launching">${body}</div>`;
 }
 document.addEventListener('click', e => { const x = e.target.closest('[data-ext]'); if (x) { e.preventDefault(); e.stopPropagation(); window.open(x.dataset.ext, '_blank', 'noopener'); } }, true);
-function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Launch a coin</b><small>Its private mine starts with it</small></a>`).join(''); }
+function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Launch coin + mine</b><small>Create the market and its private mine together</small></a>`).join(''); }
 function heroPill() {
   if (CFG.ca) return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><button class="cpy" data-copy="${esc(CFG.ca)}" aria-label="Copy the contract address">${short(CFG.ca, 5)}<span style="width:13px;height:13px;display:inline-flex">${ICON.copy}</span></button><a class="chip" href="https://dexscreener.com/solana/${esc(CFG.ca)}" target="_blank" rel="noreferrer">Chart</a></div>`;
   return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><span class="cpy" aria-label="Contract address to be announced">CA&nbsp;&nbsp;${esc(CFG.caLabel || 'TBA')}</span></div>`;
@@ -252,12 +253,11 @@ const STEPS = [
   { k: '04 · Private claim', h: 'Holders settle privately.', p: 'Each epoch turns a public holder snapshot into one-time claim rights. XMR is sent to a fresh Monero address, outside the public Solana graph.', x: 'holders' },
 ];
 function viewHome() {
-  const hero = $('#home-hero'), heroHtml = hero ? hero.outerHTML : '';
   const stepX = x => x === 'pools' ? `<div class="mx-pools">${POOLS.slice(0, 6).map(p => poolTile(p, 30)).join('')}<span>+6 more</span></div>`
     : x === 'xmr' ? `<div class="mx-float">${xmrTok(22)}<b>XMR</b><span id="st-fp">—</span><span id="st-fc" class="muted">—</span></div>`
       : x === 'pair' ? `<div class="mx-pairs"><span aria-hidden="true" style="width:9px;height:9px;border-radius:50%;background:#62d84e;box-shadow:0 0 12px #62d84e"></span><b>Pump.fun</b><span>public market</span></div>`
         : `<div class="mx-hold"><span>${xmrTok(20)}</span><b>Private XMR claim</b><span class="muted">one epoch at a time</span></div>`;
-  VIEW.innerHTML = `<div class="mwrap" id="mwrap" style="--steps:${STEPS.length}">${heroHtml}</div>
+  VIEW.innerHTML = `<div class="mwrap" id="mwrap" style="--steps:${STEPS.length}">${HOME_HERO_HTML}</div>
   <section class="sec" id="pools">
     <div class="rv secrow"><div><div class="sec-k">Monero mining pools</div><h2 class="sec-h">One mine, your choice of active pool.</h2><p class="sec-p">Choose decentralized P2Pool or another established RandomX pool. The pool can change without changing the coin or its native XMR settlement policy.</p></div><div class="netchip" id="netchip"><span class="dot"></span>Algorithm <b id="net-hr">RandomX</b></div></div>
     <div class="pgrid12 rv" id="pgrid">${POOLS.map(p => `<a class="poolc" href="/create?pool=${p.s}" data-link data-pool="${p.s}">${poolTile(p, 46)}<div class="pc-n"><b>${esc(p.n)}</b><small data-f="share">Ready</small></div><div class="pc-b"><span data-f="hr">XMR</span><span data-f="blocks">Pool</span></div></a>`).join('')}</div>
@@ -293,7 +293,7 @@ function viewHome() {
     </div>
   </section>
   <section class="sec">
-    <div class="ctaband rv"><img src="assets/brand/cta-island-moneroom.jpg" alt="Moneroom mining island" loading="lazy"><div><h2>Open a private mine on Pump.fun.</h2><p>Launch the public market, choose a RandomX route, then bind creator rewards to native XMR settlement.</p><a class="cta" href="/create" data-link style="margin-top:1.25rem">LAUNCH A COIN</a></div></div>
+    <div class="ctaband rv"><img src="assets/brand/cta-island-moneroom.jpg" alt="Moneroom mining island" loading="lazy"><div><h2>Open a private mine on Pump.fun.</h2><p>Launch the public market, choose a RandomX pool, then bind creator rewards to native XMR settlement.</p><a class="cta" href="/create" data-link style="margin-top:1.25rem">LAUNCH COIN + MINE</a></div></div>
   </section>
   <footer class="site-foot">
     <a class="pwr" style="margin:0" href="https://pump.fun" target="_blank" rel="noreferrer">Launch market <span>Pump.fun</span></a>
@@ -587,16 +587,16 @@ function viewCreateV2() {
   const q = new URLSearchParams(location.search);
   const F = { mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool', ticker: '', name: '', desc: '', web: '', x: '', tg: '', xmr: '', buy: '', file: null, preview: '' };
   VIEW.innerHTML = `<div class="page">
-    <h1 class="ph1">Launch a coin</h1>
-    <p class="psub">Create the Pump.fun coin inside Moneroom. The same launch binds its creator rewards to a RandomX route and native XMR settlement.</p>
+    <h1 class="ph1">Launch a coin and its mine</h1>
+    <p class="psub">Create the Pump.fun coin inside Moneroom. The same launch binds its creator rewards to a RandomX pool and native XMR settlement.</p>
     <div class="cgrid"><div>
       <section class="card step"><div class="step-h"><span class="num-c">1</span><div><h2>Name your coin</h2><p>This is the public identity shown on Pump.fun and across Solana.</p></div></div>
         <div class="two" style="margin-top:1rem"><div><label class="lbl" for="lc-tk">Ticker</label><input class="inp mono" id="lc-tk" maxlength="13" placeholder="TICKER" autocomplete="off"></div><div><label class="lbl" for="lc-name">Name</label><input class="inp" id="lc-name" maxlength="32" placeholder="Coin name" autocomplete="off"></div></div>
         <label class="lbl" for="lc-desc" style="margin-top:1rem">Description</label><textarea class="inp" id="lc-desc" maxlength="500" rows="4" placeholder="What is this coin for?"></textarea>
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">2</span><div><h2>Add the image and links</h2><p>The image becomes the coin artwork. Links are optional and remain part of its public profile.</p></div></div>
-        <label class="drop" id="lc-drop" style="margin-top:1rem"><input type="file" id="lc-img" accept="image/png,image/jpeg,image/gif,image/webp"><span id="lc-imgl">${ICON.plus} Upload PNG, JPG, GIF or WebP</span></label>
-        <div class="two three" style="margin-top:1rem"><input class="inp" id="lc-web" placeholder="Website"><input class="inp" id="lc-x" placeholder="X / Twitter"><input class="inp" id="lc-tg" placeholder="Telegram"></div>
+      <section class="card step media-step"><div class="step-h"><span class="num-c">2</span><div><h2>Add artwork and project links</h2><p>Your image becomes the public coin artwork. Links are optional and can be added before launch.</p></div></div>
+        <label class="launch-upload" id="lc-drop"><input type="file" id="lc-img" accept="image/png,image/jpeg,image/gif,image/webp"><span class="launch-upload-icon" id="lc-img-preview">${ICON.plus}</span><span class="launch-upload-copy" id="lc-imgl"><b>Upload coin artwork</b><small>PNG, JPG, GIF or WebP · up to 8 MB</small></span><span class="launch-upload-action">Choose file</span></label>
+        <div class="project-links"><label><span>Website</span><input class="inp" id="lc-web" type="url" placeholder="https://yourproject.com"></label><label><span>X</span><input class="inp" id="lc-x" type="url" placeholder="https://x.com/project"></label><label><span>Telegram</span><input class="inp" id="lc-tg" type="url" placeholder="https://t.me/project"></label></div>
       </section>
       <section class="card step"><div class="step-h"><span class="num-c">3</span><div><h2>Choose the mining pool</h2><p>Pick decentralized P2Pool or another active Monero pool. Every option settles mining output in native XMR.</p></div></div>
         <div class="pools" id="c-pools" style="margin-top:1rem">${POOLS.map(p => `<button class="pchoice ${p.s === F.mine ? 'on' : ''}" data-m="${p.s}">${poolTile(p, 34)}<div style="min-width:0"><b>${esc(p.n)}</b><small>RandomX · XMR</small></div><span class="pck">${ICON.check}</span></button>`).join('')}</div>
@@ -610,8 +610,8 @@ function viewCreateV2() {
       <section class="card step"><div class="step-h"><span class="num-c">6</span><div><h2>Launch and start the mine</h2><p>Your wallet signs the Pump.fun creation. Moneroom records the new mint and starts its mining policy from the same configuration.</p></div></div>
         <div class="rwd" style="margin-top:1rem"><span class="rwd-i">${xmrTok(28)}</span><div><b>Native XMR output</b><small>No wrapped reward token. No public recipient graph.</small></div><span class="rwd-k">${ICON.lock}Private</span></div>
       </section>
-    </div><aside class="review">
-      <div class="card review-in"><div class="rv-k">REVIEW LAUNCH</div>
+    </div><aside class="launch-review">
+      <div class="card review-in"><div class="review-title"><div><div class="rv-k">REVIEW LAUNCH</div><p>Confirm the configuration before signing.</p></div><span>DRAFT</span></div>
         <div class="rv-coin"><span class="ph" id="lr-ph">?</span><div><b id="lr-tk">$TICKER</b><small id="lr-name">Your coin</small></div></div>
         <div class="rv-rows"><div><span>Market</span><b>Pump.fun</b></div>
         <div><span>Funding</span><b>Creator rewards</b></div>
@@ -633,7 +633,7 @@ function viewCreateV2() {
   $('#lc-web').oninput = e => { F.web = e.target.value; }; $('#lc-x').oninput = e => { F.x = e.target.value; }; $('#lc-tg').oninput = e => { F.tg = e.target.value; };
   $('#c-xmr').oninput = e => { F.xmr = e.target.value.trim(); };
   $('#lc-buy').oninput = e => { F.buy = e.target.value.replace(/[^0-9.]/g, '').slice(0, 10); e.target.value = F.buy; sync(); };
-  $('#lc-img').onchange = e => { const f = e.target.files[0]; if (!f) return; if (f.size > 8 * 1024 * 1024) return toast('Image must be under 8 MB'); F.file = f; if (F.preview) URL.revokeObjectURL(F.preview); F.preview = URL.createObjectURL(f); $('#lc-drop').classList.add('has'); $('#lc-imgl').innerHTML = `<span style="display:flex;align-items:center;gap:.6rem"><img src="${F.preview}" alt="">${esc(f.name.slice(0, 36))}</span>`; $('#lr-ph').innerHTML = `<img src="${F.preview}" alt="">`; };
+  $('#lc-img').onchange = e => { const f = e.target.files[0]; if (!f) return; if (f.size > 8 * 1024 * 1024) return toast('Image must be under 8 MB'); F.file = f; if (F.preview) URL.revokeObjectURL(F.preview); F.preview = URL.createObjectURL(f); $('#lc-drop').classList.add('has'); $('#lc-img-preview').innerHTML = `<img src="${F.preview}" alt="Coin artwork preview">`; $('#lc-imgl').innerHTML = `<b>${esc(f.name.slice(0, 36))}</b><small>Artwork ready · click to replace</small>`; $('#lr-ph').innerHTML = `<img src="${F.preview}" alt="">`; };
   rerenderOnWallet = sync;
   $('#lr-go').onclick = async () => {
     if (!wAddr()) { await pickWallet(); sync(); return; }
@@ -650,7 +650,7 @@ function viewCreateV2() {
 function viewExplore() {
   const st = { q: '', sort: 'fdv', pool: 'all' };
   VIEW.innerHTML = `<div class="page" style="padding-top:1.25rem">
-    <section class="grad xhero xh-mine"><img class="xh-img" src="assets/brand/explore.jpg" alt=""><div class="in"><h2>Public coins. Private mining output.</h2><p>Every listed coin uses Pump.fun creator rewards to fund RandomX compute and settles completed epochs in native XMR.</p><a class="btn" href="/create" data-link>Launch a coin</a></div></section>
+    <section class="grad xhero xh-mine"><img class="xh-img" src="assets/brand/explore.jpg" alt=""><div class="in"><h2>Public coins. Private mining output.</h2><p>Every listed coin uses Pump.fun creator rewards to fund RandomX compute and settles completed epochs in native XMR.</p><a class="btn" href="/create" data-link>Launch coin + mine</a></div></section>
     <div class="xbar"><form class="xsearch" id="x-f"><input id="x-q" placeholder="Type token name or address" aria-label="Search coins">${ICON.search}</form>
       <div class="xctl"><span class="xbrand"><b>MONEROOM</b><span class="muted">Mines</span></span><span class="muted hide-sm" style="font-size:.875rem">Sort</span><div class="seg" id="x-sort"><button class="on" data-s="fdv">FDV</button><button data-s="recent">Recent</button></div></div></div>
     <div class="tabs" id="x-tabs"><button class="on" data-t="all">All</button>${POOLS.map(p => `<button data-t="${p.s}">${esc(p.n)}</button>`).join('')}</div>
@@ -687,7 +687,7 @@ async function viewCoin(mint) {
     <div class="card minec"><div class="kk"><span class="dt"></span>The mine <em>· running</em></div>
       <div class="mine-h">${poolTile(pl, 44)}<div><b>${esc(pl.n)}</b><small id="cp-ps">RandomX pool ready</small></div><span class="mine-to">${xmrTok(18)}Native XMR output</span></div>
       <div class="pgrid4"><div><small>Algorithm</small><b>RandomX</b></div><div><small>Pool</small><b id="cp-hr">${esc(pl.tag)}</b></div><div><small>XMR</small><b id="cp-fp">—</b></div><div><small>Settlement</small><b>Private claim</b></div></div>
-      <p class="pnote">Claimed creator rewards fund this coin’s RandomX route. Completed mining epochs settle as native XMR to fresh Monero addresses.</p></div>
+      <p class="pnote">Claimed creator rewards fund this coin’s RandomX pool. Completed mining epochs settle as native XMR to fresh Monero addresses.</p></div>
     <div class="card grad-card">${c.status === 'graduated' ? `<div><b>Graduated on Pump.fun</b><div class="gs">Market liquidity has migrated to PumpSwap</div></div>` : `<div><b>Pump.fun bonding curve</b><div class="prog"><i style="width:${Math.max(2, Math.min(100, (c.progress || 0) * 100)).toFixed(1)}%"></i></div></div><div class="muted" style="font-size:.875rem">${((c.progress || 0) * 100).toFixed(1)}% to graduation</div>`}</div>
     <div class="card about"><div class="about-h">About</div>
       <div class="about-r"><span>Name</span><div>${esc(c.name)}</div></div>
@@ -759,7 +759,7 @@ function viewDocs() {
   <nav class="toc"><a href="#how">How it works</a><a href="#launch">Public launch</a><a href="#mine">RandomX mine</a><a href="#claim">Private claims</a><a href="#audit">Audit</a><a href="#fees">Allocation</a><a href="#boundary">Privacy boundary</a><a href="#risks">Risks</a></nav>
   <h2 id="how">How it works</h2>
   <p>Moneroom connects two different systems without pretending they are the same. Pump.fun supplies a public Solana market and creator rewards. Monero supplies RandomX proof of work and private native settlement. Moneroom is the policy layer between them.</p>
-  <p>A launched coin receives its own mining configuration: creator-reward vault, RandomX route, epoch schedule and settlement policy. Claimed creator rewards purchase compute. Mining output arrives as XMR. Eligible holders then exercise one-time claims to fresh Monero addresses.</p>
+  <p>A launched coin receives its own mining configuration: creator-reward vault, RandomX pool, epoch schedule and settlement policy. Claimed creator rewards purchase compute. Mining output arrives as XMR. Eligible holders then exercise one-time claims to fresh Monero addresses.</p>
   <h2 id="launch">Public launch</h2>
   <p>The coin is created and traded on Pump.fun. Its contract address, trades and holder balances are public Solana data. Moneroom indexes those public facts to calculate eligibility; it does not make the Solana token private.</p>
   <h2 id="mine">RandomX mine</h2>
