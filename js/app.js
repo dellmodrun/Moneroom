@@ -190,10 +190,10 @@ function coinCard(c, extra = '') {
   const p = pairOf(c), pl = poolOf(c.mine), st = c.status === 'graduated' ? 'Graduated' : '';
   const prog = c.status !== 'graduated' && c.progress != null ? `<i class="bar" style="width:${Math.max(2, Math.min(100, c.progress * 100)).toFixed(1)}%"></i>` : '';
   return `<a class="cc ${extra}" href="/tokens/${esc(c.mint)}" data-link aria-label="$${esc(c.ticker)}">
-    <span class="wmk" aria-hidden="true">${p && p.logo ? `<img src="/${p.logo}" alt="">` : esc((p && p.t) || '')}</span>
+    <span class="wmk" aria-hidden="true">${p && p.logo ? `<img src="${p.logo}" alt="">` : esc((p && p.t) || '')}</span>
     <img class="av" src="${esc(c.image || 'assets/brand/icon-512.png')}" alt="" width="36" height="36" loading="lazy">
     <div style="position:relative"><div class="tk">$${esc(c.ticker)}</div><div class="fdv">${c.fdvUsd ? usd(c.fdvUsd) : usd(20000)}</div>
-    <div class="anc">Paired with <span>${p && p.logo ? `<img src="/${p.logo}" alt="">` : ''}${esc(p ? p.t : '')}</span></div></div>
+    <div class="anc">Paired with <span>${p && p.logo ? `<img src="${p.logo}" alt="">` : ''}${esc(p ? p.t : '')}</span></div></div>
     <span class="minechip">${poolTile(pl, 18)}${esc(pl.n)}</span>${extra.includes('live') ? '<span class="livechip"><i></i>LIVE</span>' : ''}${st ? `<span class="st">${st}</span>` : ''}${prog}</a>`;
 }
 // the project's own coin, pinned first: a pump.fun coin, so it links out to pump.fun (card) and DexScreener (Chart)
@@ -205,7 +205,7 @@ function ownCard() {
   const body = `<span class="wmk" aria-hidden="true"><img src="${fb}" alt=""></span>
     <img class="av" src="${esc(on ? (o.image || PUMP_IMG(CFG.ca)) : fb)}" alt="" width="36" height="36" onerror="this.onerror=null;this.src='${fb}'">
     <div style="position:relative"><div class="tk">$${esc(tk)}</div><div class="fdv">${on ? esc(o.mcapS || '—') : 'Launching'}</div>
-    <div class="anc">Paired with <span>${sol && sol.logo ? `<img src="/${sol.logo}" alt="">` : ''}SOL</span></div></div>
+    <div class="anc">Paired with <span>${sol && sol.logo ? `<img src="${sol.logo}" alt="">` : ''}SOL</span></div></div>
     <span class="minechip ownchip"><img src="assets/brand/mark.svg" alt="">Official</span>
     <span class="ownact">${on ? `<span class="ownchart" role="link" tabindex="0" data-ext="https://dexscreener.com/solana/${esc(CFG.ca)}">Chart</span>` : ''}<span class="livechip${on ? '' : ' soon'}"><i></i>${on ? 'LIVE' : 'LAUNCHING'}</span></span>`;
   return on ? `<a class="cc live own" href="https://pump.fun/coin/${esc(CFG.ca)}" target="_blank" rel="noreferrer" aria-label="$${esc(tk)} on pump.fun">${body}</a>`
@@ -465,7 +465,7 @@ function viewCreate() {
     const a = wAddr(), pl = poolOf(F.mine);
     el('r-tk').textContent = '$' + (F.ticker ? F.ticker.toUpperCase() : 'TICKER'); el('r-nm').textContent = F.name || 'Your token';
     const ph = el('r-ph'); if ((ph.dataset.src || '') !== F.preview) { ph.dataset.src = F.preview; ph.innerHTML = F.preview ? `<img src="${F.preview}" alt="">` : '?'; }
-    el('r-anc').innerHTML = F.pair ? `${F.pair.logo ? `<img src="/${F.pair.logo}" alt="">` : ''}${esc(F.pair.t)}` : '—';
+    el('r-anc').innerHTML = F.pair ? `${F.pair.logo ? `<img src="${F.pair.logo}" alt="">` : ''}${esc(F.pair.t)}` : '—';
     el('r-pool').innerHTML = `${poolTile(pl, 18)}${esc(pl.n)}`;
     el('r-fee').textContent = ['1%', '2%', '2.5%'][F.tier];
     el('r-buy').textContent = +F.buy > 0 ? F.buy + ' SOL' : '—';
@@ -594,7 +594,7 @@ async function viewCoin(mint) {
   const p = pairOf(c), pl = poolOf(c.mine);
   const soc = [c.x && `<a href="${esc(c.x)}" target="_blank" rel="noreferrer" aria-label="X">${ICON.x}</a>`, c.tg && `<a href="${esc(c.tg)}" target="_blank" rel="noreferrer" aria-label="Telegram">${ICON.tg}</a>`, c.web && `<a href="${esc(c.web)}" target="_blank" rel="noreferrer" aria-label="Website">${ICON.link}</a>`].filter(Boolean).join('');
   box.innerHTML = `
-    <div class="card chead"><img class="av" src="${esc(c.image)}" alt=""><div style="min-width:0"><h1>$${esc(c.ticker)} <small>${esc(c.name)}</small></h1><span class="anchip">Paired with <b>${p && p.logo ? `<img src="/${p.logo}" alt="">` : ''}${esc(p ? p.t : '')}</b></span> <span class="minechip inl">${poolTile(pl, 16)}${esc(pl.n)}</span>${soc ? `<div class="soc">${soc}</div>` : ''}</div></div>
+    <div class="card chead"><img class="av" src="${esc(c.image)}" alt=""><div style="min-width:0"><h1>$${esc(c.ticker)} <small>${esc(c.name)}</small></h1><span class="anchip">Paired with <b>${p && p.logo ? `<img src="${p.logo}" alt="">` : ''}${esc(p ? p.t : '')}</b></span> <span class="minechip inl">${poolTile(pl, 16)}${esc(pl.n)}</span>${soc ? `<div class="soc">${soc}</div>` : ''}</div></div>
     <div class="card chart-card"><div class="chart-top"><div class="tf" id="cp-tf"><button data-r="3600">1H</button><button data-r="14400">4H</button><button class="on" data-r="86400">1D</button><button data-r="604800">7D</button><button data-r="0">ALL</button></div><div class="chart-v" id="cp-fdv">${c.fdvUsd ? usd(c.fdvUsd) : usd(20000)}</div></div><div class="chart"><canvas id="cp-cv"></canvas></div></div>
     <div class="card minec"><div class="kk"><span class="dt"></span>The mine <em>· running</em></div>
       <div class="mine-h">${poolTile(pl, 44)}<div><b>${esc(pl.n)}</b><small id="cp-ps">—</small></div><span class="mine-to">${floatTok(18)}$FLOAT to holders</span></div>
@@ -605,7 +605,7 @@ async function viewCoin(mint) {
       <div class="about-r"><span>Name</span><div>${esc(c.name)}</div></div>
       <div class="about-r"><span>Ticker</span><div>$${esc(c.ticker)}</div></div>
       <div class="about-r"><span>CA</span><div class="mono" style="font-size:.8125rem">${esc(short(c.mint, 6))}<button class="cp" data-copy="${esc(c.mint)}">${ICON.copy}</button></div></div>
-      <div class="about-r"><span>Paired with</span><div>${p && p.logo ? `<img src="/${p.logo}" alt="">` : ''}${esc(p ? p.t : '')} <span class="mono muted" style="font-size:.75rem;font-weight:500">${esc(short(c.quoteMint || (p && p.mint), 6))}</span></div></div>
+      <div class="about-r"><span>Paired with</span><div>${p && p.logo ? `<img src="${p.logo}" alt="">` : ''}${esc(p ? p.t : '')} <span class="mono muted" style="font-size:.75rem;font-weight:500">${esc(short(c.quoteMint || (p && p.mint), 6))}</span></div></div>
       <div class="about-r"><span>Mining pool</span><div>${esc(pl.n)}</div></div>
       <div class="about-r"><span>Rewards</span><div>$FLOAT to holders</div></div>
       <div class="about-r"><span>Mining vault</span><div class="mono" style="font-size:.8125rem">${esc(short(c.vault, 6))}<button class="cp" data-copy="${esc(c.vault)}">${ICON.copy}</button></div></div>
