@@ -300,7 +300,7 @@ function viewHome() {
   const hs = $('#home-hero');
   hs.insertAdjacentHTML('beforeend', STEPS.map((s, i) => `<div class="mstep" data-i="${i + 1}"><span class="mk">${esc(s.k)}</span><h2>${esc(s.h)}</h2><p>${esc(s.p)}</p>${stepX(s.x)}</div>`).join('') + `<div class="mprog" aria-hidden="true">${STEPS.map((_, i) => `<i data-i="${i + 1}"></i>`).join('')}</div><a class="mscroll" href="#pools" aria-label="Scroll"><i></i></a>`);
   $('#hero-pill').innerHTML = heroPill(); hdrCa(); reveal(VIEW);
-  islandStory();
+  if (FILM) islandStory(); else posterStory();
 
   // pools
   const pools = () => {
@@ -335,6 +335,40 @@ function viewHome() {
   };
   pools(); fl(); flChart(); coins();
   live.subs.add(k => { if (k === 'pools') pools(); else if (k === 'float') fl(); else if (k === 'floatcs') flChart(); else if (k === 'coins' || k === 'own') coins(); });
+}
+
+// Smooth landing-page motion without constructing the multi-million-cell WebGL
+// world on every visit. The same authored scene remains visible, while the
+// scroll story runs entirely on compositor-friendly image transforms.
+function posterStory() {
+  const wrap = $('#mwrap'), hero = $('#home-hero'), poster = $('#mposter');
+  if (!wrap || !hero || !poster) return;
+  const panels = $$('.mstep', hero), dots = $$('.mprog i', hero), heroC = $('.mhero-c', hero), scrollCue = $('.mscroll', hero);
+  let cur = 0, want = 0, frame = 0, alive = true, mx = 0, my = 0;
+  const onScroll = () => {
+    const r = wrap.getBoundingClientRect(), span = wrap.offsetHeight - innerHeight;
+    want = clamp(-r.top / Math.max(1, span), 0, 1) * STEPS.length;
+    if (!frame) frame = requestAnimationFrame(tick);
+  };
+  const onMove = e => { mx = (e.clientX / innerWidth - .5) * 2; my = (e.clientY / innerHeight - .5) * 2; if (!frame) frame = requestAnimationFrame(tick); };
+  const tick = () => {
+    frame = 0; if (!alive) return;
+    cur += (want - cur) * .14;
+    const progress = clamp(cur / STEPS.length, 0, 1);
+    const scale = 1.035 + progress * .075;
+    poster.style.transform = `translate3d(${(-progress * 2.8 + mx * .25).toFixed(2)}%, ${(-progress * 1.8 + my * .18).toFixed(2)}%, 0) scale(${scale.toFixed(4)})`;
+    heroC.style.opacity = String(clamp(1 - cur * 2.2, 0, 1));
+    heroC.style.transform = `translate3d(0, ${(-cur * 60).toFixed(1)}px, 0)`;
+    heroC.style.pointerEvents = cur > .3 ? 'none' : '';
+    if (scrollCue) scrollCue.style.opacity = String(clamp(1 - cur * 3, 0, 1));
+    panels.forEach(p => { const k = +p.dataset.i, v = clamp(1 - Math.abs(cur - k) / .55, 0, 1); p.style.opacity = String(v); p.style.setProperty('--dy', ((cur - k) * -40).toFixed(1) + 'px'); p.style.visibility = v > .01 ? 'visible' : 'hidden'; });
+    dots.forEach(d => d.classList.toggle('on', Math.round(cur) === +d.dataset.i));
+    if (Math.abs(want - cur) > .002) frame = requestAnimationFrame(tick);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('pointermove', onMove, { passive: true });
+  onLeave(() => { alive = false; if (frame) cancelAnimationFrame(frame); removeEventListener('scroll', onScroll); removeEventListener('pointermove', onMove); });
+  onScroll();
 }
 
 // the island: pinned behind the hero; scrolling flies the camera through launch, rigs, $FLOAT and holders

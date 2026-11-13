@@ -69,6 +69,9 @@ async function proxyApi(req, res, url) {
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`);
+  if (url.pathname === '/Moneroom' || url.pathname.startsWith('/Moneroom/')) {
+    url.pathname = url.pathname.slice('/Moneroom'.length) || '/';
+  }
   if (url.pathname.startsWith('/api/')) return proxyApi(req, res, url);
 
   try {
