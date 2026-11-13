@@ -87,7 +87,23 @@ const ICON = {
   arrow: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
 };
 const logo = (p, size = 26) => p && p.logo ? `<img src="${p.logo}" alt="" width="${size}" height="${size}" loading="lazy">` : `<span class="ini" style="width:${size}px;height:${size}px">${esc((p && p.t || '?').slice(0, 2))}</span>`;
-const poolTile = (pl, size = 40) => `<span class="ptile gen" style="width:${size}px;height:${size}px">${esc(pl.tag || pl.n.slice(0, 2))}</span>`;
+const ROUTE_ICON = {
+  server: '<path d="M5 4h14v6H5zM5 14h14v6H5z"/><path d="M8 7h.01M8 17h.01M12 7h4M12 17h4"/>',
+  node: '<path d="M12 3 4.5 7v10L12 21l7.5-4V7z"/><path d="m4.5 7 7.5 4 7.5-4M12 11v10"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>',
+  bolt: '<path d="m13 2-8 12h6l-1 8 9-13h-6z"/>',
+  balance: '<path d="M12 3v18M5 6h14M7 6l-4 7h8zM17 6l-4 7h8zM8 21h8"/>',
+  network: '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="m10.8 7.2-4.5 8.6m6.9-8.6 4.5 8.6M7.5 18h9"/>',
+  shield: '<path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/>',
+  failover: '<path d="M7 7h10l-3-3m3 13H7l3 3M19 7l2 2-2 2M5 17l-2-2 2-2"/>',
+};
+const routeKind = s => s.startsWith('p2pool') ? 'monero' : s === 'solo-node' ? 'node' : s === 'dedicated' ? 'server' : s.startsWith('randomx-') ? 'globe' : s === 'low-latency' ? 'bolt' : s === 'balanced' ? 'balance' : s === 'decentralized' ? 'network' : s === 'private-relay' ? 'shield' : 'failover';
+const poolTile = (pl, size = 40) => {
+  const kind = routeKind(pl.s);
+  return kind === 'monero'
+    ? `<span class="ptile route-logo" style="width:${size}px;height:${size}px"><img src="${XMR_MARK}" alt=""></span>`
+    : `<span class="ptile route-logo" style="width:${size}px;height:${size}px"><svg viewBox="0 0 24 24" aria-hidden="true">${ROUTE_ICON[kind]}</svg></span>`;
+};
 const xmrTok = (size = 18) => `<img class="ftok" src="${XMR_MARK}" alt="XMR" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
 const catLabel = th => ({ xStock: 'xStock', Sunrise: 'Sunrise', PreStock: 'PreStock', Crypto: 'Crypto', Leverage: 'Leverage', Commodity: 'Commodity', Basket: 'Basket', Tessera: 'Tessera', Custom: 'Custom' })[th] || th;
 
@@ -172,7 +188,9 @@ document.addEventListener('click', e => {
   const a = e.target.closest('a[data-link]');
   if (!a || e.metaKey || e.ctrlKey || e.shiftKey || a.target === '_blank') return;
   const u = new URL(a.href, location.href); if (u.origin !== location.origin) return;
-  e.preventDefault(); if (u.pathname + u.search !== location.pathname + location.search) nav(u.pathname + u.search); else window.scrollTo({ top: 0, behavior: 'smooth' });
+  e.preventDefault();
+  if (a.hasAttribute('data-home')) { nav('/', location.pathname !== `${BASE_PATH}/`); requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' })); return; }
+  if (u.pathname + u.search !== location.pathname + location.search) nav(u.pathname + u.search); else window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 addEventListener('popstate', () => render());
 let rerenderOnWallet = () => { };
@@ -215,20 +233,20 @@ function coinCard(c, extra = '') {
 // the project's own coin, pinned first: a pump.fun coin, so it links out to pump.fun (card) and DexScreener (Chart)
 const PUMP_IMG = m => `https://images.pump.fun/coin-image/${m}?variant=86x86`;
 function ownCard() {
-  if (!CFG.ca || live.coins.some(c => c.mint === CFG.ca)) return '';
-  const o = live.own || { status: 'launching' }, on = o.status === 'live', sol = byId.get('SOL');
+  if (CFG.ca && live.coins.some(c => c.mint === CFG.ca)) return '';
+  const announced = !!CFG.ca, o = live.own || { status: 'launching' }, on = announced && o.status === 'live';
   const tk = String(o.ticker || 'MONEROOM').replace(/^\$/, '').toUpperCase(), fb = 'assets/brand/moneroom-logo.png';
   const body = `<span class="wmk" aria-hidden="true"><img src="${fb}" alt=""></span>
     <img class="av" src="${esc(on ? (o.image || PUMP_IMG(CFG.ca)) : fb)}" alt="" width="36" height="36" onerror="this.onerror=null;this.src='${fb}'">
-    <div style="position:relative"><div class="tk">$${esc(tk)}</div><div class="fdv">${on ? esc(o.mcapS || '—') : 'Launching'}</div>
-    <div class="anc">Paired with <span>${sol && sol.logo ? `<img src="${sol.logo}" alt="">` : ''}SOL</span></div></div>
+    <div style="position:relative"><div class="tk">$${esc(tk)}</div><div class="fdv">${on ? esc(o.mcapS || '—') : announced ? 'Launching' : 'CA TBA'}</div>
+    <div class="anc">Market <span>Pump.fun</span></div></div>
     <span class="minechip ownchip"><img src="assets/brand/moneroom-logo.png" alt="">Official</span>
-    <span class="ownact">${on ? `<span class="ownchart" role="link" tabindex="0" data-ext="https://dexscreener.com/solana/${esc(CFG.ca)}">Chart</span>` : ''}<span class="livechip${on ? '' : ' soon'}"><i></i>${on ? 'LIVE' : 'LAUNCHING'}</span></span>`;
+    <span class="ownact">${on ? `<span class="ownchart" role="link" tabindex="0" data-ext="https://dexscreener.com/solana/${esc(CFG.ca)}">Chart</span>` : ''}<span class="livechip${on ? '' : ' soon'}"><i></i>${on ? 'LIVE' : announced ? 'LAUNCHING' : 'UPCOMING'}</span></span>`;
   return on ? `<a class="cc live own" href="https://pump.fun/coin/${esc(CFG.ca)}" target="_blank" rel="noreferrer" aria-label="$${esc(tk)} on pump.fun">${body}</a>`
     : `<div class="cc live own soon" aria-label="$${esc(tk)} is launching">${body}</div>`;
 }
 document.addEventListener('click', e => { const x = e.target.closest('[data-ext]'); if (x) { e.preventDefault(); e.stopPropagation(); window.open(x.dataset.ext, '_blank', 'noopener'); } }, true);
-function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Open mine</b><small>Launch a coin to start it</small></a>`).join(''); }
+function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Launch a coin</b><small>Its private mine starts with it</small></a>`).join(''); }
 function heroPill() {
   if (CFG.ca) return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><button class="cpy" data-copy="${esc(CFG.ca)}" aria-label="Copy the contract address">${short(CFG.ca, 5)}<span style="width:13px;height:13px;display:inline-flex">${ICON.copy}</span></button><a class="chip" href="https://dexscreener.com/solana/${esc(CFG.ca)}" target="_blank" rel="noreferrer">Chart</a></div>`;
   return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><span class="cpy" aria-label="Contract address to be announced">CA&nbsp;&nbsp;${esc(CFG.caLabel || 'TBA')}</span></div>`;
@@ -247,7 +265,7 @@ function viewHome() {
   const hero = $('#home-hero'), heroHtml = hero ? hero.outerHTML : '';
   const stepX = x => x === 'pools' ? `<div class="mx-pools">${POOLS.slice(0, 6).map(p => poolTile(p, 30)).join('')}<span>+6 more</span></div>`
     : x === 'xmr' ? `<div class="mx-float">${xmrTok(22)}<b>XMR</b><span id="st-fp">—</span><span id="st-fc" class="muted">—</span></div>`
-      : x === 'pair' ? `<div class="mx-pairs"><span class="ptile gen" style="width:28px;height:28px">PF</span><b>Pump.fun</b><span>public market</span></div>`
+      : x === 'pair' ? `<div class="mx-pairs"><span aria-hidden="true" style="width:9px;height:9px;border-radius:50%;background:#62d84e;box-shadow:0 0 12px #62d84e"></span><b>Pump.fun</b><span>public market</span></div>`
         : `<div class="mx-hold"><span>${xmrTok(20)}</span><b>Private XMR claim</b><span class="muted">one epoch at a time</span></div>`;
   VIEW.innerHTML = `<div class="mwrap" id="mwrap" style="--steps:${STEPS.length}">${heroHtml}</div>
   <section class="sec" id="pools">
@@ -285,7 +303,7 @@ function viewHome() {
     </div>
   </section>
   <section class="sec">
-    <div class="ctaband rv"><img src="assets/brand/cta-island.jpg" alt="" loading="lazy"><div><h2>Open a private mine on Pump.fun.</h2><p>Launch the public market, choose a RandomX route, then bind creator rewards to native XMR settlement.</p><a class="cta" href="/create" data-link style="margin-top:1.25rem">START MINING</a></div></div>
+    <div class="ctaband rv"><img src="assets/brand/cta-island-moneroom.jpg" alt="Moneroom mining island" loading="lazy"><div><h2>Open a private mine on Pump.fun.</h2><p>Launch the public market, choose a RandomX route, then bind creator rewards to native XMR settlement.</p><a class="cta" href="/create" data-link style="margin-top:1.25rem">LAUNCH A COIN</a></div></div>
   </section>
   <footer class="site-foot">
     <a class="pwr" style="margin:0" href="https://pump.fun" target="_blank" rel="noreferrer">Launch market <span>Pump.fun</span></a>
@@ -577,49 +595,72 @@ async function firstBuy(mint, sol, btn) {
 // ================================================================ PUMP.FUN LAUNCH + MINE CONFIGURATION
 function viewCreateV2() {
   const q = new URLSearchParams(location.search);
-  const F = { mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool-main', xmr: '', ca: '' };
+  const F = { mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool-main', ticker: '', name: '', desc: '', web: '', x: '', tg: '', xmr: '', buy: '', file: null, preview: '' };
   VIEW.innerHTML = `<div class="page">
-    <h1 class="ph1">Launch a private mine</h1>
-    <p class="psub">Launch the token on Pump.fun, then bind its creator rewards to a RandomX route and native XMR settlement.</p>
+    <h1 class="ph1">Launch a coin</h1>
+    <p class="psub">Create the Pump.fun coin inside Moneroom. The same launch binds its creator rewards to a RandomX route and native XMR settlement.</p>
     <div class="cgrid"><div>
-      <section class="card step"><div class="step-h"><span class="num-c">1</span><div><h2>Launch the public market</h2><p>Create the coin with your own wallet on Pump.fun. Trading and holder balances remain public on Solana.</p></div></div>
-        <a class="btn" style="margin-top:1rem" href="https://pump.fun/create" target="_blank" rel="noreferrer">OPEN PUMP.FUN ${ICON.ext}</a>
+      <section class="card step"><div class="step-h"><span class="num-c">1</span><div><h2>Name your coin</h2><p>This is the public identity shown on Pump.fun and across Solana.</p></div></div>
+        <div class="two" style="margin-top:1rem"><div><label class="lbl" for="lc-tk">Ticker</label><input class="inp mono" id="lc-tk" maxlength="13" placeholder="TICKER" autocomplete="off"></div><div><label class="lbl" for="lc-name">Name</label><input class="inp" id="lc-name" maxlength="32" placeholder="Coin name" autocomplete="off"></div></div>
+        <label class="lbl" for="lc-desc" style="margin-top:1rem">Description</label><textarea class="inp" id="lc-desc" maxlength="500" rows="4" placeholder="What is this coin for?"></textarea>
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">2</span><div><h2>Choose the RandomX route</h2><p>P2Pool is the default. Regional, dedicated and failover routes keep the same native XMR output.</p></div></div>
+      <section class="card step"><div class="step-h"><span class="num-c">2</span><div><h2>Add the image and links</h2><p>The image becomes the coin artwork. Links are optional and remain part of its public profile.</p></div></div>
+        <label class="drop" id="lc-drop" style="margin-top:1rem"><input type="file" id="lc-img" accept="image/png,image/jpeg,image/gif,image/webp"><span id="lc-imgl">${ICON.plus} Upload PNG, JPG, GIF or WebP</span></label>
+        <div class="two three" style="margin-top:1rem"><input class="inp" id="lc-web" placeholder="Website"><input class="inp" id="lc-x" placeholder="X / Twitter"><input class="inp" id="lc-tg" placeholder="Telegram"></div>
+      </section>
+      <section class="card step"><div class="step-h"><span class="num-c">3</span><div><h2>Choose the RandomX route</h2><p>P2Pool is the default. Regional, dedicated and failover routes keep the same native XMR output.</p></div></div>
         <div class="pools" id="c-pools" style="margin-top:1rem">${POOLS.map(p => `<button class="pchoice ${p.s === F.mine ? 'on' : ''}" data-m="${p.s}">${poolTile(p, 34)}<div style="min-width:0"><b>${esc(p.n)}</b><small>RandomX · XMR</small></div><span class="pck">${ICON.check}</span></button>`).join('')}</div>
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">3</span><div><h2>Set the private settlement address</h2><p>Use a fresh Monero address. It is used for XMR settlement only and is never placed in the token metadata.</p></div></div>
+      <section class="card step"><div class="step-h"><span class="num-c">4</span><div><h2>Set the private settlement address</h2><p>Use a fresh Monero address. It is used for XMR settlement only and is never placed in the token metadata.</p></div></div>
         <label class="lbl" for="c-xmr" style="margin-top:1rem">Monero address</label><input class="inp mono" id="c-xmr" placeholder="4... or 8..." autocomplete="off">
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">4</span><div><h2>Bind the launched coin</h2><p>After launch, paste the Pump.fun contract address. Moneroom uses it to index creator rewards and holder snapshots.</p></div></div>
-        <label class="lbl" for="c-ca" style="margin-top:1rem">Solana contract address</label><input class="inp mono" id="c-ca" placeholder="Token CA" autocomplete="off">
+      <section class="card step"><div class="step-h"><span class="num-c">5</span><div><h2>Choose the initial buy</h2><p>Optional. The buy is signed by your connected wallet after the coin is created.</p></div></div>
+        <label class="lbl" for="lc-buy" style="margin-top:1rem">Initial buy in SOL</label><input class="inp mono" id="lc-buy" inputmode="decimal" placeholder="0.00">
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">5</span><div><h2>Run settlement epochs</h2><p>Each epoch snapshots eligible public balances, mines XMR, creates one-time claim rights and nullifies each right after use.</p></div></div>
+      <section class="card step"><div class="step-h"><span class="num-c">6</span><div><h2>Launch and start the mine</h2><p>Your wallet signs the Pump.fun creation. Moneroom records the new mint and starts its mining policy from the same configuration.</p></div></div>
         <div class="rwd" style="margin-top:1rem"><span class="rwd-i">${xmrTok(28)}</span><div><b>Native XMR output</b><small>No wrapped reward token. No public recipient graph.</small></div><span class="rwd-k">${ICON.lock}Private</span></div>
       </section>
     </div><aside class="review">
-      <div class="card review-in"><div class="rv-title">Mine configuration</div>
-        <div class="rv-row"><span>Market</span><b>Pump.fun</b></div>
-        <div class="rv-row"><span>Funding</span><b>Creator rewards</b></div>
-        <div class="rv-row"><span>Route</span><b id="r-pool">${esc(poolOf(F.mine).n)}</b></div>
-        <div class="rv-row"><span>Algorithm</span><b>RandomX</b></div>
-        <div class="rv-row"><span>Output</span><b>${xmrTok(14)} Native XMR</b></div>
-        <div class="rv-row"><span>Allocation</span><b>85% compute</b></div>
-        <p class="rv-note" id="r-note">Launch on Pump.fun first, then return with the CA.</p>
-        <a class="btn" href="https://pump.fun/create" target="_blank" rel="noreferrer" style="width:100%;justify-content:center">LAUNCH ON PUMP.FUN</a>
+      <div class="card review-in"><div class="rv-k">REVIEW LAUNCH</div>
+        <div class="rv-coin"><span class="ph" id="lr-ph">?</span><div><b id="lr-tk">$TICKER</b><small id="lr-name">Your coin</small></div></div>
+        <div class="rv-rows"><div><span>Market</span><b>Pump.fun</b></div>
+        <div><span>Funding</span><b>Creator rewards</b></div>
+        <div><span>Route</span><b id="r-pool">${esc(poolOf(F.mine).n)}</b></div>
+        <div><span>Algorithm</span><b>RandomX</b></div>
+        <div><span>Output</span><b>${xmrTok(14)} Native XMR</b></div>
+        <div><span>Initial buy</span><b id="lr-buy">—</b></div>
+        <div><span>Creator</span><b class="mono" id="lr-wallet">Not connected</b></div></div>
+        <p class="rv-note" id="r-note">The coin and its private mine are created together.</p>
+        <button class="rv-btn" id="lr-go">SELECT WALLET</button>
       </div>
     </aside></div>
   </div>`;
   $('#c-pools').onclick = e => { const b = e.target.closest('[data-m]'); if (!b) return; F.mine = b.dataset.m; $$('#c-pools [data-m]').forEach(x => x.classList.toggle('on', x === b)); $('#r-pool').textContent = poolOf(F.mine).n; };
-  $('#c-xmr').oninput = e => { F.xmr = e.target.value.trim(); $('#r-note').textContent = F.xmr ? 'Private settlement address added locally.' : 'Launch on Pump.fun first, then return with the CA.'; };
-  $('#c-ca').oninput = e => { F.ca = e.target.value.trim(); $('#r-note').textContent = F.ca ? 'CA captured. The public market can now be bound to this mine policy.' : 'Launch on Pump.fun first, then return with the CA.'; };
+  const sync = () => { $('#lr-tk').textContent = '$' + (F.ticker || 'TICKER'); $('#lr-name').textContent = F.name || 'Your coin'; $('#lr-buy').textContent = +F.buy > 0 ? `${F.buy} SOL` : '—'; const a = wAddr(); $('#lr-wallet').textContent = a ? short(a, 5) : 'Not connected'; $('#lr-go').textContent = a ? 'LAUNCH COIN' : 'SELECT WALLET'; };
+  $('#lc-tk').oninput = e => { F.ticker = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 13); e.target.value = F.ticker; sync(); };
+  $('#lc-name').oninput = e => { F.name = e.target.value.slice(0, 32); sync(); };
+  $('#lc-desc').oninput = e => { F.desc = e.target.value.slice(0, 500); };
+  $('#lc-web').oninput = e => { F.web = e.target.value; }; $('#lc-x').oninput = e => { F.x = e.target.value; }; $('#lc-tg').oninput = e => { F.tg = e.target.value; };
+  $('#c-xmr').oninput = e => { F.xmr = e.target.value.trim(); };
+  $('#lc-buy').oninput = e => { F.buy = e.target.value.replace(/[^0-9.]/g, '').slice(0, 10); e.target.value = F.buy; sync(); };
+  $('#lc-img').onchange = e => { const f = e.target.files[0]; if (!f) return; if (f.size > 8 * 1024 * 1024) return toast('Image must be under 8 MB'); F.file = f; if (F.preview) URL.revokeObjectURL(F.preview); F.preview = URL.createObjectURL(f); $('#lc-drop').classList.add('has'); $('#lc-imgl').innerHTML = `<span style="display:flex;align-items:center;gap:.6rem"><img src="${F.preview}" alt="">${esc(f.name.slice(0, 36))}</span>`; $('#lr-ph').innerHTML = `<img src="${F.preview}" alt="">`; };
+  rerenderOnWallet = sync;
+  $('#lr-go').onclick = async () => {
+    if (!wAddr()) { await pickWallet(); sync(); return; }
+    const err = !F.ticker ? 'Enter a ticker.' : !F.name.trim() ? 'Enter the coin name.' : !F.file ? 'Upload the coin image.' : !/^[48][1-9A-HJ-NP-Za-km-z]{90,105}$/.test(F.xmr) ? 'Enter a valid primary Monero address or subaddress.' : null;
+    if (err) { $('#r-note').innerHTML = `<span class="bad">${esc(err)}</span>`; return; }
+    localStorage.setItem('moneroom:launch-draft', JSON.stringify({ ...F, file: undefined, preview: undefined, creator: wAddr(), savedAt: Date.now() }));
+    $('#r-note').textContent = 'Launch configuration ready. Preparing the Pump.fun creation transaction…';
+    toast('Launch configuration saved');
+  };
+  sync();
 }
 
 // ================================================================ EXPLORE
 function viewExplore() {
   const st = { q: '', sort: 'fdv', pool: 'all' };
   VIEW.innerHTML = `<div class="page" style="padding-top:1.25rem">
-    <section class="grad xhero xh-mine"><img class="xh-img" src="assets/brand/explore.jpg" alt=""><div class="in"><h2>Public coins. Private mining output.</h2><p>Every listed coin uses Pump.fun creator rewards to fund RandomX compute and settles completed epochs in native XMR.</p><a class="btn" href="/create" data-link>Launch a mine</a></div></section>
+    <section class="grad xhero xh-mine"><img class="xh-img" src="assets/brand/explore.jpg" alt=""><div class="in"><h2>Public coins. Private mining output.</h2><p>Every listed coin uses Pump.fun creator rewards to fund RandomX compute and settles completed epochs in native XMR.</p><a class="btn" href="/create" data-link>Launch a coin</a></div></section>
     <div class="xbar"><form class="xsearch" id="x-f"><input id="x-q" placeholder="Type token name or address" aria-label="Search coins">${ICON.search}</form>
       <div class="xctl"><span class="xbrand"><b>MONEROOM</b><span class="muted">Mines</span></span><span class="muted hide-sm" style="font-size:.875rem">Sort</span><div class="seg" id="x-sort"><button class="on" data-s="fdv">FDV</button><button data-s="recent">Recent</button></div></div></div>
     <div class="tabs" id="x-tabs"><button class="on" data-t="all">All</button>${POOLS.map(p => `<button data-t="${p.s}">${esc(p.n)}</button>`).join('')}</div>

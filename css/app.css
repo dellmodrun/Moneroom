@@ -266,7 +266,8 @@ textarea.inp { height: 5.25rem; padding: .75rem 1rem; resize: vertical; }
 .mkt-h .hlbadge { margin-left: auto; }
 .hlbadge { display: inline-flex; align-items: center; gap: .35rem; border-radius: 9999px; border: 1px solid #97fce433; background: #97fce40f; padding: .15rem .55rem; font-size: 11px; font-weight: 600; color: var(--hl); }
 .hlbadge svg { width: 12px; height: 9px; }
-.drop { display: flex; align-items: center; gap: .75rem; height: 2.75rem; width: 100%; border-radius: .75rem; border: 1px solid var(--line); background: var(--surface); padding: 0 1rem; font-size: .875rem; color: var(--faint); cursor: pointer; transition: border-color .15s; }
+.drop { position: relative; display: flex; align-items: center; gap: .75rem; height: 2.75rem; width: 100%; border-radius: .75rem; border: 1px solid var(--line); background: var(--surface); padding: 0 1rem; font-size: .875rem; color: var(--faint); cursor: pointer; transition: border-color .15s; }
+.drop input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .drop:hover, .drop.over { border-color: var(--line-strong); }
 .drop img { width: 28px; height: 28px; border-radius: .4rem; object-fit: cover; }
 .drop.has { color: var(--text); }
