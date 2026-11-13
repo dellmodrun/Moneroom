@@ -325,7 +325,7 @@ async function islandStory() {
   if (!gl) return;
   let st, alive = true; onLeave(() => { alive = false; });
   await new Promise(r => setTimeout(r, FILM ? 0 : 60));
-  try { const m = await import('./island.js'); st = await m.createIsland(cv, { dpr: Math.min(devicePixelRatio || 1, 1.35), shadowSize: 2048, samples: 4, base: '/', shadowEvery: 3, beamH: 120, night: !/[?&]day/.test(location.search), lamps: false, bloom: .5, bloomT: 1.05 }); }
+  try { const m = await import('./island.js'); st = await m.createIsland(cv, { dpr: Math.min(devicePixelRatio || 1, 1.35), shadowSize: 2048, samples: 4, base: `${BASE_PATH}/`, shadowEvery: 3, beamH: 120, night: !/[?&]day/.test(location.search), lamps: false, bloom: .5, bloomT: 1.05 }); }
   catch (e) { console.warn('island', e); return; }
   if (!alive || !document.body.contains(cv)) { try { st.renderer.dispose(); } catch (_) { } return; }
   const THREE = await import('three');
