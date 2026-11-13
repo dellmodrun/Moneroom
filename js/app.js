@@ -24,16 +24,8 @@ async function readRemoteConfig() {
   }
 }
 
-const CFG = await readRemoteConfig();
+const CFG = { ...DEFAULT_CFG };
 window.FM = CFG;
-
-// Keep already-open launch pages in sync when the published CA changes.
-setInterval(async () => {
-  const next = await readRemoteConfig();
-  if ((next.ca || '') !== (CFG.ca || '') || (next.caLabel || '') !== (CFG.caLabel || '')) {
-    location.reload();
-  }
-}, 60000);
 const BASE_PATH = '/Moneroom';
 const Q0 = new URLSearchParams(location.search);
 const FILM = Q0.get('film') || '';
@@ -732,4 +724,20 @@ function viewTerms() {
 Object.assign(FMAPP, { FILM, live, modal, closeModal, launchHtml, doneHtml, nav, render, PAIRS, byId, POOLS, refreshCoins });
 walletBtn();
 render();
+
+// The page paints immediately from its embedded fallback. Remote CA state is
+// applied after first paint so a slow config request can never hold up the UI.
+async function syncRemoteConfig() {
+  const next = await readRemoteConfig();
+  if ((next.ca || '') === (CFG.ca || '') && (next.caLabel || '') === (CFG.caLabel || '')) return;
+  Object.assign(CFG, next);
+  $('#hdrca')?.remove();
+  hdrCa();
+  const pill = $('.capill');
+  if (pill) pill.outerHTML = heroPill();
+  refreshOwn();
+}
+syncRemoteConfig();
+setInterval(syncRemoteConfig, 60000);
+addEventListener('visibilitychange', () => { if (!document.hidden) syncRemoteConfig(); });
 if (FILM) { document.body.classList.add('fm-film'); import('./filmmode.js').then(m => m.start && m.start(FILM, FMAPP)).catch(() => { }); }
