@@ -215,9 +215,9 @@ document.addEventListener('click', e => { const x = e.target.closest('[data-ext]
 function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Open mine</b><small>Launch a coin to start it</small></a>`).join(''); }
 function heroPill() {
   if (CFG.ca) return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><button class="cpy" data-copy="${esc(CFG.ca)}" aria-label="Copy the contract address">${short(CFG.ca, 5)}<span style="width:13px;height:13px;display:inline-flex">${ICON.copy}</span></button><a class="chip" href="https://dexscreener.com/solana/${esc(CFG.ca)}" target="_blank" rel="noreferrer">Chart</a></div>`;
-  return `<a class="pwr" href="https://www.floatlaunch.xyz" target="_blank" rel="noreferrer">Built on <span><img src="assets/brand/float-mark.png" alt="">Float</span></a>`;
+  return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><span class="cpy" aria-label="Contract address to be announced">CA&nbsp;&nbsp;${esc(CFG.caLabel || 'TBA')}</span></div>`;
 }
-function hdrCa() { const r = $('.hdr-r'); if (!CFG.ca || $('#hdrca')) return; const el = document.createElement('button'); el.id = 'hdrca'; el.className = 'pill ca-hdr mono'; el.dataset.copy = CFG.ca; el.innerHTML = `CA ${short(CFG.ca, 4)}`; r.insertBefore(el, r.firstChild); }
+function hdrCa() { const r = $('.hdr-r'), label = CFG.ca || CFG.caLabel; if (!label || $('#hdrca')) return; const el = document.createElement(CFG.ca ? 'button' : 'span'); el.id = 'hdrca'; el.className = 'pill ca-hdr mono'; if (CFG.ca) el.dataset.copy = CFG.ca; el.innerHTML = `CA ${CFG.ca ? short(CFG.ca, 4) : esc(label)}`; r.insertBefore(el, r.firstChild); }
 const poolLive = s => live.pools && live.pools.m[s];
 
 // ================================================================ HOME
