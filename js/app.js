@@ -1,4 +1,4 @@
-/* Floatmine · the app: router, views (home with the island story, launch, explore, coin, mines, profile, docs),
+/* Moneroom · the app: router, views (home with the island story, launch, explore, coin, mines, profile, docs),
  * live pool data (mempool.space) and live $FLOAT (DexScreener, GeckoTerminal), and the real Float launch:
  * one wallet signature, the coin's creator share of fees routed to its own mining vault. */
 import { PAIRS } from '../data/pairs.js';
@@ -24,7 +24,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const FLOAT_MINT = 'Bv1a7cEj5aRnJQhMw4kRQqAFesMSd5LwcDnUzq52BMmr';
 
-// the twelve pools a Floatmine coin can mine with (slugs as mempool.space names them)
+// the twelve pools a Moneroom coin can mine with (slugs as mempool.space names them)
 export const POOLS = [
   { s: 'foundryusa', n: 'Foundry USA', dark: 1 }, { s: 'antpool', n: 'AntPool' }, { s: 'f2pool', n: 'F2Pool' }, { s: 'viabtc', n: 'ViaBTC' },
   { s: 'spiderpool', n: 'SpiderPool' }, { s: 'marapool', n: 'MARA Pool' }, { s: 'ocean', n: 'OCEAN' }, { s: 'secpool', n: 'SECPOOL' },
@@ -124,7 +124,7 @@ refreshCoins(); refreshPools(); refreshFloat(); refreshOwn();
 if (!FILM) { setInterval(refreshCoins, 20000); setInterval(refreshPools, 120000); setInterval(refreshFloat, 30000); setInterval(refreshFloatChart, 600000); setInterval(refreshOwn, 20000); }
 
 // ---------------------------------------------------------------- wallet button + picker
-function walletBtn() { const b = $('#wbtn'), a = wAddr(), ic = FILM ? 'assets/brand/wallet-film.svg' : WAL.walletIcon(); b.innerHTML = a ? `${ic ? `<img src="${esc(ic)}" alt="">` : ''}${short(a, 4)}` : 'Select Wallet'; }
+function walletBtn() { const b = $('#wbtn'), a = wAddr(), ic = FILM ? 'assets/brand/moneroom-logo.png' : WAL.walletIcon(); b.innerHTML = a ? `${ic ? `<img src="${esc(ic)}" alt="">` : ''}${short(a, 4)}` : 'Select Wallet'; }
 WAL.onChange(() => { walletBtn(); rerenderOnWallet(); });
 WAL.onWallets(walletBtn);
 $('#wbtn').onclick = () => wAddr() ? walletMenu() : pickWallet();
@@ -191,7 +191,7 @@ function coinCard(c, extra = '') {
   const prog = c.status !== 'graduated' && c.progress != null ? `<i class="bar" style="width:${Math.max(2, Math.min(100, c.progress * 100)).toFixed(1)}%"></i>` : '';
   return `<a class="cc ${extra}" href="/tokens/${esc(c.mint)}" data-link aria-label="$${esc(c.ticker)}">
     <span class="wmk" aria-hidden="true">${p && p.logo ? `<img src="${p.logo}" alt="">` : esc((p && p.t) || '')}</span>
-    <img class="av" src="${esc(c.image || 'assets/brand/icon-512.png')}" alt="" width="36" height="36" loading="lazy">
+    <img class="av" src="${esc(c.image || 'assets/brand/moneroom-logo.png')}" alt="" width="36" height="36" loading="lazy">
     <div style="position:relative"><div class="tk">$${esc(c.ticker)}</div><div class="fdv">${c.fdvUsd ? usd(c.fdvUsd) : usd(20000)}</div>
     <div class="anc">Paired with <span>${p && p.logo ? `<img src="${p.logo}" alt="">` : ''}${esc(p ? p.t : '')}</span></div></div>
     <span class="minechip">${poolTile(pl, 18)}${esc(pl.n)}</span>${extra.includes('live') ? '<span class="livechip"><i></i>LIVE</span>' : ''}${st ? `<span class="st">${st}</span>` : ''}${prog}</a>`;
@@ -201,12 +201,12 @@ const PUMP_IMG = m => `https://images.pump.fun/coin-image/${m}?variant=86x86`;
 function ownCard() {
   if (!CFG.ca || live.coins.some(c => c.mint === CFG.ca)) return '';
   const o = live.own || { status: 'launching' }, on = o.status === 'live', sol = byId.get('SOL');
-  const tk = String(o.ticker || 'FLOATMINE').replace(/^\$/, '').toUpperCase(), fb = 'assets/brand/icon-512.png';
+  const tk = String(o.ticker || 'MONEROOM').replace(/^\$/, '').toUpperCase(), fb = 'assets/brand/moneroom-logo.png';
   const body = `<span class="wmk" aria-hidden="true"><img src="${fb}" alt=""></span>
     <img class="av" src="${esc(on ? (o.image || PUMP_IMG(CFG.ca)) : fb)}" alt="" width="36" height="36" onerror="this.onerror=null;this.src='${fb}'">
     <div style="position:relative"><div class="tk">$${esc(tk)}</div><div class="fdv">${on ? esc(o.mcapS || '—') : 'Launching'}</div>
     <div class="anc">Paired with <span>${sol && sol.logo ? `<img src="${sol.logo}" alt="">` : ''}SOL</span></div></div>
-    <span class="minechip ownchip"><img src="assets/brand/mark.svg" alt="">Official</span>
+    <span class="minechip ownchip"><img src="assets/brand/moneroom-logo.png" alt="">Official</span>
     <span class="ownact">${on ? `<span class="ownchart" role="link" tabindex="0" data-ext="https://dexscreener.com/solana/${esc(CFG.ca)}">Chart</span>` : ''}<span class="livechip${on ? '' : ' soon'}"><i></i>${on ? 'LIVE' : 'LAUNCHING'}</span></span>`;
   return on ? `<a class="cc live own" href="https://pump.fun/coin/${esc(CFG.ca)}" target="_blank" rel="noreferrer" aria-label="$${esc(tk)} on pump.fun">${body}</a>`
     : `<div class="cc live own soon" aria-label="$${esc(tk)} is launching">${body}</div>`;
@@ -214,7 +214,7 @@ function ownCard() {
 document.addEventListener('click', e => { const x = e.target.closest('[data-ext]'); if (x) { e.preventDefault(); e.stopPropagation(); window.open(x.dataset.ext, '_blank', 'noopener'); } }, true);
 function openSlots(n) { return Array.from({ length: n }, () => `<a class="cc open" href="/create" data-link><span class="plus">${ICON.plus}</span><b>Open mine</b><small>Launch a coin to start it</small></a>`).join(''); }
 function heroPill() {
-  if (CFG.ca) return `<div class="capill"><img src="assets/brand/mark.svg" alt=""><b>$FLOATMINE</b><button class="cpy" data-copy="${esc(CFG.ca)}" aria-label="Copy the contract address">${short(CFG.ca, 5)}<span style="width:13px;height:13px;display:inline-flex">${ICON.copy}</span></button><a class="chip" href="https://dexscreener.com/solana/${esc(CFG.ca)}" target="_blank" rel="noreferrer">Chart</a></div>`;
+  if (CFG.ca) return `<div class="capill"><img src="assets/brand/moneroom-logo.png" alt=""><b>$MONEROOM</b><button class="cpy" data-copy="${esc(CFG.ca)}" aria-label="Copy the contract address">${short(CFG.ca, 5)}<span style="width:13px;height:13px;display:inline-flex">${ICON.copy}</span></button><a class="chip" href="https://dexscreener.com/solana/${esc(CFG.ca)}" target="_blank" rel="noreferrer">Chart</a></div>`;
   return `<a class="pwr" href="https://www.floatlaunch.xyz" target="_blank" rel="noreferrer">Built on <span><img src="assets/brand/float-mark.png" alt="">Float</span></a>`;
 }
 function hdrCa() { const r = $('.hdr-r'); if (!CFG.ca || $('#hdrca')) return; const el = document.createElement('button'); el.id = 'hdrca'; el.className = 'pill ca-hdr mono'; el.dataset.copy = CFG.ca; el.innerHTML = `CA ${short(CFG.ca, 4)}`; r.insertBefore(el, r.firstChild); }
@@ -222,7 +222,7 @@ const poolLive = s => live.pools && live.pools.m[s];
 
 // ================================================================ HOME
 const STEPS = [
-  { k: '01 · Launch', h: 'Launch on Float.', p: 'Every Floatmine coin is a real Float coin: launched through Float’s own program, paired with any Float asset, and graduated into a Raydium pool with liquidity locked forever.', x: 'pair' },
+  { k: '01 · Launch', h: 'Launch on Float.', p: 'Every Moneroom coin is a real Float coin: launched through Float’s own program, paired with any Float asset, and graduated into a Raydium pool with liquidity locked forever.', x: 'pair' },
   { k: '02 · Rigs', h: 'Fees power real rigs.', p: 'Float sends each coin’s creator share of trading fees to the coin’s own mining vault. The vault rents hashrate from industrial rigs and points it at the pool chosen at launch.', x: 'pools' },
   { k: '03 · $FLOAT', h: 'Rewards become $FLOAT.', p: 'Everything the rigs earn is swapped to $FLOAT on the open market, every cycle.', x: 'float' },
   { k: '04 · Holders', h: 'Paid to holders, automatically.', p: 'The $FLOAT goes straight to the coin’s holders, pro rata to their bags. Nothing to claim and nothing to stake, on top of Float’s own holder rewards.', x: 'holders' },
@@ -252,11 +252,11 @@ function viewHome() {
     </div>
   </section>
   <section class="sec">
-    <div class="rv secrow"><div><div class="sec-k">Live mines</div><h2 class="sec-h">Coins mining on Floatmine.</h2><p class="sec-p">Real Float coins whose fees run rigs for their holders.</p></div><a class="btn-ghost" href="/tokens" data-link>Explore</a></div>
+    <div class="rv secrow"><div><div class="sec-k">Live mines</div><h2 class="sec-h">Coins mining on Moneroom.</h2><p class="sec-p">Real Float coins whose fees run rigs for their holders.</p></div><a class="btn-ghost" href="/tokens" data-link>Explore</a></div>
     <div class="grid3 rv" id="home-coins"></div>
   </section>
   <section class="sec">
-    <div class="rv"><div class="sec-k">Where the fees go</div><h2 class="sec-h">Float splits every fee. Floatmine mines with its share.</h2><p class="sec-p">The split is set by Float’s program and is the same for every Float coin. On Floatmine, the creator share runs the coin’s mine.</p></div>
+    <div class="rv"><div class="sec-k">Where the fees go</div><h2 class="sec-h">Float splits every fee. Moneroom mines with its share.</h2><p class="sec-p">The split is set by Float’s program and is the same for every Float coin. On Moneroom, the creator share runs the coin’s mine.</p></div>
     <div class="split2 card rv">
       <div class="sbar"><i style="flex:15" class="s1"></i><i style="flex:5" class="s2"></i><i style="flex:35" class="s3"></i><i style="flex:35" class="s4"></i><i style="flex:10" class="s5"></i></div>
       <div class="slegend">
@@ -301,9 +301,9 @@ function viewHome() {
     const X = i => 8 * d + (w - 16 * d) * i / (cs.length - 1), Y = v => h - 28 * d - (h - 56 * d) * (v - mn + pad) / (mx - mn + 2 * pad);
     const pts = cs.map((c, i) => [X(i), Y(c.c)]);
     ctx.beginPath(); smooth(ctx, pts); ctx.lineTo(pts[pts.length - 1][0], h); ctx.lineTo(pts[0][0], h); ctx.closePath();
-    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(61,139,255,.28)'); g.addColorStop(1, 'rgba(61,139,255,0)'); ctx.fillStyle = g; ctx.fill();
+    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(255,106,0,.28)'); g.addColorStop(1, 'rgba(255,106,0,0)'); ctx.fillStyle = g; ctx.fill();
     ctx.save(); ctx.shadowColor = 'rgba(120,170,255,.8)'; ctx.shadowBlur = 12 * d; ctx.beginPath(); smooth(ctx, pts); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.2 * d; ctx.stroke(); ctx.restore();
-    const L = pts[pts.length - 1]; ctx.beginPath(); ctx.arc(L[0], L[1], 4.5 * d, 0, 7); ctx.fillStyle = '#3d8bff'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2 * d; ctx.stroke();
+    const L = pts[pts.length - 1]; ctx.beginPath(); ctx.arc(L[0], L[1], 4.5 * d, 0, 7); ctx.fillStyle = '#ff6a00'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2 * d; ctx.stroke();
   };
   const ro = new ResizeObserver(flChart); ro.observe($('#fl-cv')); onLeave(() => ro.disconnect());
   // coins
@@ -401,7 +401,7 @@ function viewCreate() {
       <div style="margin-top:.9rem"><label class="lbl" for="c-desc">Description (optional)</label><textarea class="inp" id="c-desc" maxlength="100"></textarea><div class="cnt" id="c-cnt">0/100</div></div>
       <div class="err" id="c-err1"></div>
     </section>
-    <section class="card step"><div class="step-h"><span class="num-c">4</span><div><h2>Rewards</h2><p>Where the mine pays out. Set for every Floatmine coin.</p></div></div>
+    <section class="card step"><div class="step-h"><span class="num-c">4</span><div><h2>Rewards</h2><p>Where the mine pays out. Set for every Moneroom coin.</p></div></div>
       <div class="rwd" style="margin-top:1rem"><span class="rwd-i">${floatTok(28)}</span><div><b>$FLOAT to holders</b><small>Pro rata to each holder’s bag, sent automatically. Nothing to claim.</small></div><span class="rwd-k">${ICON.lock}Fixed</span></div>
       <div class="wrow" id="c-wrow"></div>
     </section>
@@ -537,7 +537,7 @@ async function launchFlow(F) {
     step('mine');
     const rg = await fetch('/api/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: pr.j.id, mint: t.mint, sig, pool: t.pool, confirmed: ok === 'ok' }) }).then(r => r.json()).catch(() => ({}));
     allOk(); refreshCoins();
-    const tweet = `$${F.ticker.toUpperCase()} is live on ${CFG.x ? '@' + CFG.x : 'Floatmine'}: a Float coin paired with $${F.pair.t} that mines $FLOAT for its holders.\n\n${location.origin}/tokens/${t.mint}`;
+    const tweet = `$${F.ticker.toUpperCase()} is live on ${CFG.x ? '@' + CFG.x : 'Moneroom'}: a Float coin paired with $${F.pair.t} that mines $FLOAT for its holders.\n\n${location.origin}/tokens/${t.mint}`;
     m.innerHTML = doneHtml(F, t.mint, tweet);
     m.querySelectorAll('[data-link]').forEach(a => a.addEventListener('click', closeModal));
     const fb = $('#lf-buy', m); if (fb && +F.buy > 0) fb.onclick = () => firstBuy(t.mint, +F.buy, fb);
@@ -564,7 +564,7 @@ function viewExplore() {
   VIEW.innerHTML = `<div class="page" style="padding-top:1.25rem">
     <section class="grad xhero xh-mine"><img class="xh-img" src="assets/brand/explore.jpg" alt=""><div class="in"><h2>Every coin here mines $FLOAT.</h2><p>Real Float coins whose fees run mining rigs with the pool picked at launch. Holders are paid in $FLOAT, automatically.</p><a class="btn" href="/create" data-link>Launch a coin</a></div></section>
     <div class="xbar"><form class="xsearch" id="x-f"><input id="x-q" placeholder="Type token name or address" aria-label="Search coins">${ICON.search}</form>
-      <div class="xctl"><span class="xbrand"><b>FLOATMINE</b><span class="muted">Coins</span></span><span class="muted hide-sm" style="font-size:.875rem">Sort</span><div class="seg" id="x-sort"><button class="on" data-s="fdv">FDV</button><button data-s="recent">Recent</button></div></div></div>
+      <div class="xctl"><span class="xbrand"><b>MONEROOM</b><span class="muted">Coins</span></span><span class="muted hide-sm" style="font-size:.875rem">Sort</span><div class="seg" id="x-sort"><button class="on" data-s="fdv">FDV</button><button data-s="recent">Recent</button></div></div></div>
     <div class="tabs" id="x-tabs"><button class="on" data-t="all">All</button>${POOLS.map(p => `<button data-t="${p.s}">${esc(p.n)}</button>`).join('')}</div>
     <div class="grid3" id="x-grid"></div></div>`;
   const draw = () => {
@@ -573,7 +573,7 @@ function viewExplore() {
     if (st.pool !== 'all') L = L.filter(c => c.mine === st.pool);
     L.sort((a, b) => st.sort === 'recent' ? (b.createdAt || 0) - (a.createdAt || 0) : (b.fdvUsd || 0) - (a.fdvUsd || 0));
     const g = $('#x-grid'); if (!g) return;
-    const o = live.own || {}, ownHit = !!CFG.ca && st.pool === 'all' && (!q || 'floatmine'.includes(q) || String(o.ticker || '').toLowerCase().includes(q) || String(o.name || '').toLowerCase().includes(q) || st.q.trim() === CFG.ca);
+    const o = live.own || {}, ownHit = !!CFG.ca && st.pool === 'all' && (!q || 'moneroom'.includes(q) || String(o.ticker || '').toLowerCase().includes(q) || String(o.name || '').toLowerCase().includes(q) || st.q.trim() === CFG.ca);
     const own = ownHit ? ownCard() : '', n = L.length + (own ? 1 : 0);
     g.innerHTML = own + L.map(c => coinCard(c, c.mint === CFG.ca ? 'live' : '')).join('') + (q || st.pool !== 'all' ? (n ? '' : `<p class="empty" style="grid-column:1/-1">No coins match.</p>`) : openSlots(Math.max(3 - n, n % 3 ? 3 - n % 3 : 0)));
   };
@@ -590,7 +590,7 @@ async function viewCoin(mint) {
   let c = live.coins.find(x => x.mint === mint);
   if (!c) { try { const r = await fetch('/api/coin/' + encodeURIComponent(mint)); if (r.ok) c = (await r.json()).coin; } catch (_) { } }
   const box = $('#cp'); if (!box) return;
-  if (!c) { box.innerHTML = `<div class="card card-p"><b>Not a Floatmine coin</b><p class="psub">This address was not launched on Floatmine. <a class="lnk" href="https://www.floatlaunch.xyz/tokens/${esc(mint)}" target="_blank" rel="noreferrer">Open it on Float</a></p></div>`; return; }
+  if (!c) { box.innerHTML = `<div class="card card-p"><b>Not a Moneroom coin</b><p class="psub">This address was not launched on Moneroom. <a class="lnk" href="https://www.floatlaunch.xyz/tokens/${esc(mint)}" target="_blank" rel="noreferrer">Open it on Float</a></p></div>`; return; }
   const p = pairOf(c), pl = poolOf(c.mine);
   const soc = [c.x && `<a href="${esc(c.x)}" target="_blank" rel="noreferrer" aria-label="X">${ICON.x}</a>`, c.tg && `<a href="${esc(c.tg)}" target="_blank" rel="noreferrer" aria-label="Telegram">${ICON.tg}</a>`, c.web && `<a href="${esc(c.web)}" target="_blank" rel="noreferrer" aria-label="Website">${ICON.link}</a>`].filter(Boolean).join('');
   box.innerHTML = `
@@ -631,11 +631,11 @@ async function viewCoin(mint) {
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t || t0 + 1;
     const X = t => 6 * d + (w - 100 * d) * (t - t0) / Math.max(1, t1 - t0), Y = v => h - 22 * d - (h - 40 * d) * (v - mn + pad) / (mx - mn + 2 * pad);
     ctx.beginPath(); pts.forEach((p, i) => { const x = X(p.t), y = Y(p.v); if (i) { ctx.lineTo(x, Y(pts[i - 1].v)); ctx.lineTo(x, y); } else ctx.moveTo(x, y); });
-    ctx.strokeStyle = '#8fbcff'; ctx.lineWidth = 2 * d; ctx.stroke();
+    ctx.strokeStyle = '#ff9a3d'; ctx.lineWidth = 2 * d; ctx.stroke();
     const last = pts[pts.length - 1], lx = X(last.t), ly = Y(last.v);
-    ctx.lineTo(lx, h - 22 * d); ctx.lineTo(X(t0), h - 22 * d); ctx.closePath(); const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(61,139,255,.24)'); g.addColorStop(1, 'rgba(61,139,255,0)'); ctx.fillStyle = g; ctx.fill();
+    ctx.lineTo(lx, h - 22 * d); ctx.lineTo(X(t0), h - 22 * d); ctx.closePath(); const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(255,106,0,.24)'); g.addColorStop(1, 'rgba(255,106,0,0)'); ctx.fillStyle = g; ctx.fill();
     ctx.setLineDash([3 * d, 4 * d]); ctx.strokeStyle = 'rgba(141,156,186,.35)'; ctx.lineWidth = 1 * d; ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(w, ly); ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = `700 ${11 * d}px Geist`; const txt = usd(last.v), tw = ctx.measureText(txt).width; ctx.fillStyle = '#8fbcff'; ctx.beginPath(); ctx.roundRect(w - tw - 22 * d, ly - 10 * d, tw + 18 * d, 20 * d, 10 * d); ctx.fill(); ctx.fillStyle = '#04122e'; ctx.fillText(txt, w - tw - 13 * d, ly + 4 * d);
+    ctx.font = `700 ${11 * d}px Geist`; const txt = usd(last.v), tw = ctx.measureText(txt).width; ctx.fillStyle = '#ff9a3d'; ctx.beginPath(); ctx.roundRect(w - tw - 22 * d, ly - 10 * d, tw + 18 * d, 20 * d, 10 * d); ctx.fill(); ctx.fillStyle = '#1a0901'; ctx.fillText(txt, w - tw - 13 * d, ly + 4 * d);
   };
   $('#cp-tf').onclick = async e => { const b = e.target.closest('[data-r]'); if (!b) return; range = +b.dataset.r; $$('#cp-tf button').forEach(x => x.classList.toggle('on', x === b)); await loadChart(); drawChart(); };
   await loadChart(); drawChart();
@@ -645,14 +645,14 @@ async function viewCoin(mint) {
 
 // ================================================================ MINES (live pools)
 function viewMines() {
-  VIEW.innerHTML = `<div class="page"><h1 class="ph1">Mines</h1><p class="psub">The pools Floatmine coins mine with, live from the network over the last seven days.</p>
-    <div class="stats4"><div class="card stat"><small>Network hashrate</small><b id="mn-hr">—</b><p>Estimated, last 7 days</p></div><div class="card stat"><small>Blocks this week</small><b id="mn-b">—</b><p>Across every pool</p></div><div class="card stat"><small>Floatmine pools</small><b id="mn-s">—</b><p>Share of blocks this week</p></div><div class="card stat"><small>$FLOAT</small><b id="mn-f">—</b><p id="mn-fc">Price, live</p></div></div>
+  VIEW.innerHTML = `<div class="page"><h1 class="ph1">Mines</h1><p class="psub">The pools Moneroom coins mine with, live from the network over the last seven days.</p>
+    <div class="stats4"><div class="card stat"><small>Network hashrate</small><b id="mn-hr">—</b><p>Estimated, last 7 days</p></div><div class="card stat"><small>Blocks this week</small><b id="mn-b">—</b><p>Across every pool</p></div><div class="card stat"><small>Moneroom pools</small><b id="mn-s">—</b><p>Share of blocks this week</p></div><div class="card stat"><small>$FLOAT</small><b id="mn-f">—</b><p id="mn-fc">Price, live</p></div></div>
     <div class="tbl"><div class="tbl-scroll"><table><thead><tr><th>#</th><th>Pool</th><th class="r">Share · 7d</th><th class="r">Blocks · 7d</th><th class="r col-hide">Hashrate</th><th class="r"></th></tr></thead><tbody id="mn-b2"></tbody></table></div></div></div>`;
   const draw = () => {
     const P = live.pools; if (!P) { $('#mn-b2').innerHTML = `<tr><td colspan="6" class="muted">Loading the network…</td></tr>`; return; }
     $('#mn-hr').textContent = hashrate(P.net); $('#mn-b').textContent = String(P.tot);
     const ours = new Set(POOLS.map(p => p.s)); $('#mn-s').textContent = (P.all.filter(p => ours.has(p.slug)).reduce((s, p) => s + p.share, 0) * 100).toFixed(1) + '%';
-    $('#mn-b2').innerHTML = P.all.filter(p => p.slug !== 'unknown').slice(0, 24).map((p, i) => { const pl = POOLS.find(x => x.s === p.slug); return `<tr class="${pl ? 'ours' : ''}"><td class="muted">${i + 1}</td><td><div class="tas">${pl ? poolTile(pl, 28) : `<span class="ptile gen" style="width:28px;height:28px">${esc(p.name.slice(0, 1))}</span>`}<div><b>${esc(p.name)}</b>${pl ? '<small>Floatmine pool</small>' : ''}</div></div></td><td class="r num">${(p.share * 100).toFixed(2)}%</td><td class="r num">${p.blocks}</td><td class="r num col-hide">${hashrate(p.hr)}</td><td class="r">${pl ? `<a class="minebtn" href="/create?pool=${p.slug}" data-link>Mine</a>` : ''}</td></tr>`; }).join('');
+    $('#mn-b2').innerHTML = P.all.filter(p => p.slug !== 'unknown').slice(0, 24).map((p, i) => { const pl = POOLS.find(x => x.s === p.slug); return `<tr class="${pl ? 'ours' : ''}"><td class="muted">${i + 1}</td><td><div class="tas">${pl ? poolTile(pl, 28) : `<span class="ptile gen" style="width:28px;height:28px">${esc(p.name.slice(0, 1))}</span>`}<div><b>${esc(p.name)}</b>${pl ? '<small>Moneroom pool</small>' : ''}</div></div></td><td class="r num">${(p.share * 100).toFixed(2)}%</td><td class="r num">${p.blocks}</td><td class="r num col-hide">${hashrate(p.hr)}</td><td class="r">${pl ? `<a class="minebtn" href="/create?pool=${p.slug}" data-link>Mine</a>` : ''}</td></tr>`; }).join('');
   };
   const fl = () => { if (!live.float) return; $('#mn-f').textContent = price(live.float.price); const e = $('#mn-fc'); e.textContent = pct(live.float.chg) + ' in 24h'; e.className = cls(live.float.chg); };
   draw(); fl(); live.subs.add(k => { if (k === 'pools') draw(); if (k === 'float') fl(); });
@@ -673,31 +673,31 @@ function viewProfile() {
 
 // ================================================================ DOCS + TERMS
 function viewDocs() {
-  VIEW.innerHTML = `<article class="docs"><h1>Docs</h1><p class="lead">How Floatmine works, where the fees go, and what to know before you trade.</p>
+  VIEW.innerHTML = `<article class="docs"><h1>Docs</h1><p class="lead">How Moneroom works, where the fees go, and what to know before you trade.</p>
   <nav class="toc"><a href="#how">How it works</a><a href="#mine">The mine</a><a href="#rewards">Rewards</a><a href="#fees">Fees</a><a href="#pools">Pools</a><a href="#tickers">Tickers</a><a href="#risks">Risks</a><a href="#contracts">Contracts</a></nav>
   <h2 id="how">How it works</h2>
-  <p>Every Floatmine coin is a real Float coin. It launches through the Float program on Raydium LaunchLab, paired with a token from Float’s list: a crypto asset like SOL or HYPE, a tokenized stock like Tesla or NVIDIA, a pre-IPO name, gold or a basket. Float pays the coin’s holders their share of fees in that pair token.</p>
-  <p>Floatmine adds the mine. The coin’s creator share of fees is routed to the coin’s own mining vault, and the vault funds hashrate from industrial mining rigs at the pool chosen at launch. Rewards are converted to $FLOAT and paid to the coin’s holders.</p>
+  <p>Every Moneroom coin is a real Float coin. It launches through the Float program on Raydium LaunchLab, paired with a token from Float’s list: a crypto asset like SOL or HYPE, a tokenized stock like Tesla or NVIDIA, a pre-IPO name, gold or a basket. Float pays the coin’s holders their share of fees in that pair token.</p>
+  <p>Moneroom adds the mine. The coin’s creator share of fees is routed to the coin’s own mining vault, and the vault funds hashrate from industrial mining rigs at the pool chosen at launch. Rewards are converted to $FLOAT and paid to the coin’s holders.</p>
   <p>Coins launch with a fixed supply of 1,000,000,000, no mint or freeze authority, and a starting market cap of about $20,000. At about 7.5x the coin graduates and its liquidity is locked forever in a Raydium pool. Your wallet signs one transaction; nobody else signs it.</p>
   <h2 id="mine">The mine</h2>
-  <p>Each coin has its own mining vault, set as the coin’s fee receiver in the Float program. The vault is a Solana address whose key is sealed inside Floatmine’s server; Floatmine uses it to run the coin’s mining cycle and nothing else. Each cycle claims the vault’s fees, rents SHA-256 hashrate on the open market and points it at the coin’s pool. Larger fees rent more hashrate.</p>
+  <p>Each coin has its own mining vault, set as the coin’s fee receiver in the Float program. The vault is a Solana address whose key is sealed inside Moneroom’s server; Moneroom uses it to run the coin’s mining cycle and nothing else. Each cycle claims the vault’s fees, rents SHA-256 hashrate on the open market and points it at the coin’s pool. Larger fees rent more hashrate.</p>
   <h2 id="rewards">Rewards</h2>
   <p>Pool payouts are swapped to $FLOAT, Float’s own token, and sent to the coin’s holders pro rata to their balances. There is nothing to claim and nothing to stake. This comes on top of Float’s own holder rewards in the pair token.</p>
   <h2 id="fees">Fees</h2>
   <p>Creators pick a trading fee of 1%, 2% or 2.5%. Raydium keeps part of it while a coin is on its curve. The Float program splits the rest the same way for every Float coin:</p>
-  <div class="card split"><div><b>15%</b><span>Holders<small>Paid by Float to the coin’s holders in the pair token.</small></span></div><div><b>5%</b><span>The mine<small>Sent to the coin’s Floatmine mining vault. Rewards go to holders in $FLOAT.</small></span></div><div><b>35%</b><span>$FLOAT burn<small>Float buys back and burns $FLOAT.</small></span></div><div><b>35%</b><span>Traders<small>Airdropped by Float to the top traders by volume.</small></span></div><div><b>10%</b><span>Treasury<small>Float’s treasury.</small></span></div></div>
+  <div class="card split"><div><b>15%</b><span>Holders<small>Paid by Float to the coin’s holders in the pair token.</small></span></div><div><b>5%</b><span>The mine<small>Sent to the coin’s Moneroom mining vault. Rewards go to holders in $FLOAT.</small></span></div><div><b>35%</b><span>$FLOAT burn<small>Float buys back and burns $FLOAT.</small></span></div><div><b>35%</b><span>Traders<small>Airdropped by Float to the top traders by volume.</small></span></div><div><b>10%</b><span>Treasury<small>Float’s treasury.</small></span></div></div>
   <h2 id="pools">Pools</h2>
   <p>A coin mines with one of twelve of the largest mining pools: ${POOLS.map(p => esc(p.n)).join(', ')}. Pool shares on the site come live from mempool.space.</p>
   <h2 id="tickers">Tickers</h2>
   <p>Tickers are 1 to 10 letters or numbers and live in Float’s ticker list, shared with every Float coin. Launching a ticker that already exists costs 1 SOL, paid to Float’s treasury; a ticker that was just claimed is protected for a while. The launch form tells you before you sign.</p>
   <h2 id="risks">Risks</h2>
-  <ul><li>Coins are highly speculative. Most lose value, and you can lose everything you put in.</li><li>Mining rewards depend on network difficulty, pool luck and the coin’s trading volume. They can be small, and they vary.</li><li>Tokenized stocks are issued by third parties, who keep powers over their tokens. A coin is not a share and gives no rights in any company.</li><li>Floatmine is not affiliated with Float or with any mining pool. It launches through Float’s public program.</li></ul>
+  <ul><li>Coins are highly speculative. Most lose value, and you can lose everything you put in.</li><li>Mining rewards depend on network difficulty, pool luck and the coin’s trading volume. They can be small, and they vary.</li><li>Tokenized stocks are issued by third parties, who keep powers over their tokens. A coin is not a share and gives no rights in any company.</li><li>Moneroom is not affiliated with Float or with any mining pool. It launches through Float’s public program.</li></ul>
   <h2 id="contracts">Contracts</h2>
   <p>Float program <code>${S.FLOAT.program}</code></p><p>Raydium LaunchLab <code>${S.FLOAT.launchlab}</code></p><p>$FLOAT <code>${FLOAT_MINT}</code></p>
   </article>`;
 }
 function viewTerms() {
-  VIEW.innerHTML = `<article class="docs"><h1>Terms of Use</h1><p class="lead">Short version: you launch and trade at your own risk.</p><h2>Use</h2><p>Floatmine is a front end for Float’s public launch program on Solana and a mining service for the coins launched through it. You are responsible for what you launch and for every transaction your wallet signs.</p><h2>No advice</h2><p>Nothing on this site is financial advice. Memecoins are risky and can go to zero. Mining rewards are not guaranteed.</p><h2>No affiliation</h2><p>Floatmine is not affiliated with Float, Raydium, any mining pool, or any company whose token a coin is paired with.</p></article>`;
+  VIEW.innerHTML = `<article class="docs"><h1>Terms of Use</h1><p class="lead">Short version: you launch and trade at your own risk.</p><h2>Use</h2><p>Moneroom is a front end for Float’s public launch program on Solana and a mining service for the coins launched through it. You are responsible for what you launch and for every transaction your wallet signs.</p><h2>No advice</h2><p>Nothing on this site is financial advice. Memecoins are risky and can go to zero. Mining rewards are not guaranteed.</p><h2>No affiliation</h2><p>Moneroom is not affiliated with Float, Raydium, any mining pool, or any company whose token a coin is paired with.</p></article>`;
 }
 
 // ---------------------------------------------------------------- boot

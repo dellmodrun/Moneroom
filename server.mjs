@@ -84,5 +84,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(port, '127.0.0.1', () => {
-  console.log(`Floatmine local mirror: http://127.0.0.1:${port}/`);
+  console.log(`Moneroom local site: http://127.0.0.1:${port}/`);
 });

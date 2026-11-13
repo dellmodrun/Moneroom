@@ -1,4 +1,4 @@
-// Floatmine world: one floating island in Float's navy sky. A terraced open mine in the middle with twelve rig halls
+// Moneroom world: one floating island in a black-orange sky. A terraced open mine in the middle with twelve rig halls
 // (one per real mining pool), the Float core at the bottom of the pit that turns the haul into $FLOAT, a village of
 // holders on the rim who receive it, a waterfall off the edge, satellite islets, voxel clouds.
 import * as THREE from 'three';
@@ -315,19 +315,20 @@ export async function loadLogo(url, px = 512) {
 async function poolBanner(world, slug, uni, base = 'assets/mines/') {
   const img = await loadLogo(base + slug + '.svg'), light = img ? logoIsLight(img) : false;
   const map = canvasTex(640, 480, (g, w, h) => {
-    g.fillStyle = light ? '#0b2350' : '#f7f9fc'; g.fillRect(0, 0, w, h);
-    g.fillStyle = '#3d8bff'; g.fillRect(0, 0, w, 18); g.fillStyle = light ? '#3d8bff' : '#022866'; g.fillRect(0, h - 12, w, 12);
+    g.fillStyle = light ? '#211006' : '#f8f3ed'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#ff6a00'; g.fillRect(0, 0, w, 18); g.fillStyle = light ? '#ff6a00' : '#512006'; g.fillRect(0, h - 12, w, 12);
     if (img) { const box = 220, s = Math.min(box * 1.6 / img.width, box / img.height), iw = img.width * s, ih = img.height * s; g.imageSmoothingQuality = 'high'; g.drawImage(img, (w - iw) / 2, 58 + (box - ih) / 2, iw, ih); }
-    g.fillStyle = light ? '#ffffff' : '#022866'; g.font = '700 48px Geist, "Segoe UI", Arial, sans-serif'; g.textAlign = 'center'; g.fillText(POOL_NAMES[slug], w / 2, h - 56);
+    g.fillStyle = light ? '#ffffff' : '#321307'; g.font = '700 48px Geist, "Segoe UI", Arial, sans-serif'; g.textAlign = 'center'; g.fillText(POOL_NAMES[slug], w / 2, h - 56);
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.55, 12, 8), swayMat(world, uni, { map, roughness: .85, side: THREE.DoubleSide }, 'fmbanner', .035)); mesh.castShadow = true; mesh.receiveShadow = true; return mesh;
 }
 async function floatFlagTex() {
-  const img = await loadImg('data:image/svg+xml;utf8,' + encodeURIComponent(pickSVG('#ffffff', { pad: 0, tight: true, id: 'flg', attrs: 'width="512" height="512"' })));
+  const img = await loadImg('assets/brand/moneroom-logo.png');
   return canvasTex(512, 768, (g, w, h) => {
-    g.fillStyle = '#3d8bff'; g.fillRect(0, 0, w, h);
-    if (img) g.drawImage(img, w / 2 - 150, h * .42 - 150, 300, 300);
-    g.fillStyle = '#ffffff'; g.font = '700 60px Geist, Arial'; g.textAlign = 'center'; g.fillText('FLOATMINE', w / 2, h - 96);
+    g.fillStyle = '#0b0704'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#ff6a00'; g.fillRect(0, 0, 18, h);
+    if (img) g.drawImage(img, w / 2 - 160, h * .42 - 160, 320, 320);
+    g.fillStyle = '#ffffff'; g.font = '700 60px Geist, Arial'; g.textAlign = 'center'; g.fillText('MONEROOM', w / 2, h - 96);
   });
 }
 export function crystalGeo(len, rad, tip) {
@@ -336,15 +337,15 @@ export function crystalGeo(len, rad, tip) {
   const out = new THREE.BufferGeometry(); out.setAttribute('position', new THREE.BufferAttribute(pos, 3)); out.computeVertexNormals(); return out;
 }
 export function crystalMats() {
-  return [new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#2f6fe0'), emissive: new THREE.Color('#2a63d6'), emissiveIntensity: .7, roughness: .08, metalness: 0, clearcoat: 1, clearcoatRoughness: .04, flatShading: true, envMapIntensity: 1.2, iridescence: .3, iridescenceIOR: 1.5 }),
-    new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#bcd8ff'), emissive: new THREE.Color('#6aa4ff'), emissiveIntensity: .55, roughness: .06, clearcoat: 1, flatShading: true, envMapIntensity: 1.2 })];
+  return [new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#ff5a00'), emissive: new THREE.Color('#d83b00'), emissiveIntensity: .75, roughness: .08, metalness: 0, clearcoat: 1, clearcoatRoughness: .04, flatShading: true, envMapIntensity: 1.2, iridescence: .24, iridescenceIOR: 1.5 }),
+    new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#ffd0aa'), emissive: new THREE.Color('#ff8a2a'), emissiveIntensity: .6, roughness: .06, clearcoat: 1, flatShading: true, envMapIntensity: 1.2 })];
 }
 function makeCrystals(x, y, z, sc = 1.3, seed = 99) {
   const grp = new THREE.Group(), [mA, mB] = crystalMats(), r = mulberry(seed);
   const spec = [[0, 0, 0, 7.6, 1, 2, 0, 0], [1.4, 0, .5, 4.8, .62, 1.2, .32, .4], [-1.3, 0, -.4, 5.4, .68, 1.3, -.28, 2.2], [.4, 0, -1.4, 4, .52, 1, .2, 4.1], [-.6, 0, 1.4, 3.6, .5, .9, -.22, 1.2], [1.9, 0, -1, 2.8, .42, .8, .45, 3.3], [-2, 0, 1.1, 2.6, .4, .7, -.5, 5.3]];
   for (const [cx, , cz, len, rad, tip, tilt, rot] of spec) { const m = new THREE.Mesh(crystalGeo(len, rad, tip), r() < .5 ? mA : mB); m.position.set(cx, len / 2 + .1, cz); m.rotation.set(tilt * .6, rot, tilt); m.castShadow = true; grp.add(m); }
   grp.position.set(x, y, z); grp.scale.setScalar(sc);
-  const light = new THREE.PointLight(0x4a8cff, 26 * sc, 34 * sc, 1.7); light.position.set(x, y + 5 * sc, z);
+  const light = new THREE.PointLight(0xff6a00, 28 * sc, 36 * sc, 1.7); light.position.set(x, y + 5 * sc, z);
   return { grp, light };
 }
 function makeCart(world, load, uni) {
@@ -423,7 +424,7 @@ float stars(vec3 d){ vec3 a = abs(d); vec2 uv = a.x > a.y && a.x > a.z ? d.zy / 
 // night: deep navy dome, three layers of stars, a soft Milky Way, a moon, and a deck of moonlit clouds round the horizon
 vec3 nightSky(vec3 d){
   float y = d.y;
-  vec3 zen = vec3(0.0004, 0.0012, 0.0045), hor = vec3(0.0035, 0.0095, 0.03), bel = vec3(0.0012, 0.004, 0.014);
+  vec3 zen = vec3(0.0018, 0.0007, 0.00025), hor = vec3(0.025, 0.0065, 0.0012), bel = vec3(0.009, 0.0022, 0.00045);
   vec3 c = y > 0.0 ? mix(hor, zen, pow(clamp(y, 0.0, 1.0), 0.45)) : mix(hor, bel, pow(clamp(-y, 0.0, 1.0), 0.6));
   vec3 N = normalize(vec3(0.42, 0.55, -0.72)); float bd = dot(d, N), band = exp(-bd * bd / 0.022);
 #ifdef HQ
@@ -432,9 +433,9 @@ vec3 nightSky(vec3 d){
   vec2 su = vec2(atan(d.z, d.x) * 0.15915 + 0.5, asin(clamp(d.y, -1.0, 1.0)) * 0.31831 + 0.5);
   float mot = textureLod(uNoise, su * vec2(3.0, 1.5), 0.0).r, dust = textureLod(uNoise, su * vec2(7.0, 3.5) + 0.37, 0.0).g;
 #endif
-  c += vec3(0.011, 0.014, 0.028) * band * (0.3 + 0.95 * mot) * (1.0 - 0.6 * smoothstep(0.45, 0.75, dust) * exp(-bd * bd / 0.004));
+  c += vec3(0.028, 0.012, 0.004) * band * (0.3 + 0.95 * mot) * (1.0 - 0.6 * smoothstep(0.45, 0.75, dust) * exp(-bd * bd / 0.004));
   float up = smoothstep(-0.12, 0.2, y), tint = h21(floor(d.xy * 97.0 + d.z * 41.0));
-  vec3 sc = mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.88, 0.72), step(0.86, tint));
+  vec3 sc = mix(vec3(1.0, 0.83, 0.68), vec3(1.0, 0.54, 0.16), step(0.86, tint));
   c += sc * (stars(d) * 0.4 + stars2(d) * 0.22 + stars3(d) * 0.06 * (1.0 + 2.5 * band)) * up;
   float hy = y + 0.05; vec2 cu = d.xz / (abs(hy) + 0.16) * 1.5; 
 #ifdef HQ
@@ -444,22 +445,22 @@ vec3 nightSky(vec3 d){
 #endif
  
   float cm = smoothstep(0.42, 0.7, cn) * exp(-hy * hy / 0.06);
-  vec3 cc = mix(vec3(0.006, 0.012, 0.03), vec3(0.05, 0.07, 0.13), smoothstep(0.5, 0.82, cn));
+  vec3 cc = mix(vec3(0.012, 0.006, 0.003), vec3(0.11, 0.045, 0.012), smoothstep(0.5, 0.82, cn));
   c = mix(c, cc, cm * 0.95);
   float md = max(dot(d, normalize(vec3(-0.42, 0.82, 0.4))), 0.0);
-  c += vec3(0.62, 0.72, 1.0) * (smoothstep(0.99955, 0.9997, md) * 5.0 + pow(md, 60.0) * 0.014 + pow(md, 8.0) * 0.004);
+  c += vec3(1.0, 0.73, 0.48) * (smoothstep(0.99955, 0.9997, md) * 5.0 + pow(md, 60.0) * 0.014 + pow(md, 8.0) * 0.004);
   return c;
 }
 void main(){ vec3 d = normalize(vD);
-  vec3 base = vec3(0.0006, 0.0021, 0.0068) * mix(1.0, 0.75, uNight);
+  vec3 base = vec3(0.0038, 0.0013, 0.00045) * mix(1.0, 0.75, uNight);
   float g = max(dot(d, normalize(uGlow)), 0.0);
-  vec3 c = base + vec3(0.0022, 0.011, 0.046) * pow(g, 9.0) + vec3(0.0008, 0.0035, 0.012) * pow(g, 2.5);
-  c += vec3(0.0008, 0.003, 0.012) * smoothstep(-0.2, -0.9, d.y);
-  c += vec3(0.6, 0.75, 1.0) * stars(d) * mix(0.02, 0.05, uNight) * (1.0 - uEnv);
-  if (uNight > 0.5 && uEnv < 0.5) c = nightSky(d) + base * 0.0 + vec3(0.0022, 0.011, 0.046) * pow(g, 9.0) * 0.5;
+  vec3 c = base + vec3(0.055, 0.012, 0.0015) * pow(g, 9.0) + vec3(0.018, 0.004, 0.0007) * pow(g, 2.5);
+  c += vec3(0.015, 0.003, 0.0005) * smoothstep(-0.2, -0.9, d.y);
+  c += vec3(1.0, 0.66, 0.38) * stars(d) * mix(0.02, 0.05, uNight) * (1.0 - uEnv);
+  if (uNight > 0.5 && uEnv < 0.5) c = nightSky(d) + base * 0.0 + vec3(0.055, 0.012, 0.0015) * pow(g, 9.0) * 0.5;
   // environment version: a warm key light and a cool sky so materials have something to reflect (night: a cool moon, a dark sky, the island's blue from below)
-  vec3 day = vec3(1.0, 0.92, 0.8) * smoothstep(0.82, 0.98, dot(d, normalize(vec3(-0.55, 0.75, 0.38)))) * 2.4 + vec3(0.35, 0.55, 1.0) * smoothstep(-0.1, 1.0, d.y) * 0.35 + vec3(0.25, 0.45, 1.0) * smoothstep(0.7, 0.98, dot(d, normalize(vec3(0.4, 0.3, -0.85)))) * 0.9;
-  vec3 night = vec3(0.62, 0.74, 1.0) * smoothstep(0.9, 0.995, dot(d, normalize(vec3(-0.42, 0.82, 0.4)))) * 1.6 + vec3(0.05, 0.09, 0.2) * smoothstep(-0.1, 1.0, d.y) + vec3(0.12, 0.3, 0.9) * smoothstep(0.75, 0.98, dot(d, normalize(vec3(0.4, 0.3, -0.85)))) * 0.35 + vec3(0.05, 0.14, 0.45) * smoothstep(0.0, -0.8, d.y) * 0.25;
+  vec3 day = vec3(1.0, 0.91, 0.8) * smoothstep(0.82, 0.98, dot(d, normalize(vec3(-0.55, 0.75, 0.38)))) * 2.4 + vec3(1.0, 0.34, 0.04) * smoothstep(-0.1, 1.0, d.y) * 0.28 + vec3(1.0, 0.22, 0.01) * smoothstep(0.7, 0.98, dot(d, normalize(vec3(0.4, 0.3, -0.85)))) * 0.75;
+  vec3 night = vec3(1.0, 0.64, 0.34) * smoothstep(0.9, 0.995, dot(d, normalize(vec3(-0.42, 0.82, 0.4)))) * 1.6 + vec3(0.14, 0.035, 0.006) * smoothstep(-0.1, 1.0, d.y) + vec3(0.65, 0.12, 0.01) * smoothstep(0.75, 0.98, dot(d, normalize(vec3(0.4, 0.3, -0.85)))) * 0.35 + vec3(0.28, 0.05, 0.004) * smoothstep(0.0, -0.8, d.y) * 0.25;
   c += uEnv * mix(day, night, uNight);
   gl_FragColor = vec4(c, 1.0); }`;
 function makeBackdrop(env = 0, night = false, hq = false) {
@@ -478,7 +479,7 @@ function waterfallMesh(fall) {
       void main(){ float x = vUv.x, y = vUv.y; vec2 p = vec2(x * 9.0, y * 16.0 - uT * 3.2);
         float s = n(p) * .6 + n(p * 2.3 + 7.0) * .4; float foam = smoothstep(.55, .85, s) + smoothstep(.06, .0, y) * .8;
         float edge = smoothstep(0.0, .22, x) * smoothstep(1.0, .78, x); float fade = smoothstep(1.0, .35, y);
-        vec3 c = mix(vec3(.26, .52, .96), vec3(.92, .96, 1.0), clamp(foam, 0.0, 1.0)); gl_FragColor = vec4(c * uB, (.62 + .3 * foam) * edge * fade); }` });
+        vec3 c = mix(vec3(.42, .12, .015), vec3(1.0, .72, .42), clamp(foam, 0.0, 1.0)); gl_FragColor = vec4(c * uB, (.62 + .3 * foam) * edge * fade); }` });
   const m = new THREE.Mesh(geo, mat); m.renderOrder = 3; return m;
 }
 function waterMesh(world) {
@@ -488,7 +489,7 @@ function waterMesh(world) {
     const yy = y + .86; pos.push(x, yy, z + 1, x + 1, yy, z + 1, x + 1, yy, z, x, yy, z); idx.push(v, v + 1, v + 2, v, v + 2, v + 3); v += 4; break;
   }
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
-  const mat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#2f7cf0'), emissive: new THREE.Color('#1a4fb8'), emissiveIntensity: .25, roughness: .04, transparent: true, opacity: .84, envMapIntensity: 1.6, clearcoat: 1, clearcoatRoughness: .03 });
+  const mat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#47200c'), emissive: new THREE.Color('#8f2d03'), emissiveIntensity: .2, roughness: .06, transparent: true, opacity: .86, envMapIntensity: 1.3, clearcoat: 1, clearcoatRoughness: .03 });
   const m = new THREE.Mesh(geo, mat); m.receiveShadow = true; m.renderOrder = 2; return m;
 }
 
@@ -524,10 +525,10 @@ function farIslets() {
   }
   const grp = new THREE.Group(), box = new THREE.BoxGeometry(1, 1, 1), m = new THREE.Object3D();
   const inst = (list, mat, tall) => { const im = new THREE.InstancedMesh(box, mat, list.length); list.forEach((c, i) => { m.position.set(c[0], c[1], c[2]); m.scale.set(c[3], tall ? c[4] : c[3], c[3]); m.updateMatrix(); im.setMatrixAt(i, m.matrix); }); im.frustumCulled = false; grp.add(im); return im; };
-  inst(cols, new THREE.MeshStandardMaterial({ color: new THREE.Color('#252e45'), roughness: .95 }), true);
-  inst(tops, new THREE.MeshStandardMaterial({ color: new THREE.Color('#244f3b'), roughness: .9 }), false);
+  inst(cols, new THREE.MeshStandardMaterial({ color: new THREE.Color('#28221e'), roughness: .95 }), true);
+  inst(tops, new THREE.MeshStandardMaterial({ color: new THREE.Color('#3c3028'), roughness: .9 }), false);
   inst(warm, new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffcf8a').multiplyScalar(3.2) }), false);
-  inst(blue, new THREE.MeshBasicMaterial({ color: new THREE.Color('#6aa4ff').multiplyScalar(3.2) }), false);
+  inst(blue, new THREE.MeshBasicMaterial({ color: new THREE.Color('#ff6a00').multiplyScalar(3.2) }), false);
   return grp;
 }
 
@@ -549,16 +550,16 @@ export async function createIsland(canvas, o = {}) {
   const water = waterMesh(world); scene.add(water);
   const fall = waterfallMesh(info.river.fall); scene.add(fall); if (NIGHT) fall.material.uniforms.uB.value = .55;
 
-  // light: a warm key from the upper left, a Float-blue rim from behind, the navy sky as a soft fill
+  // light: a warm key from the upper left, an orange rim from behind, and a near-black sky as soft fill
   const mid = new THREE.Vector3(C.CX, 50, C.CZ), keyDir = (NIGHT ? new THREE.Vector3(-.42, .82, .4) : new THREE.Vector3(-.55, .75, .38)).normalize();
-  const sun = new THREE.DirectionalLight(NIGHT ? 0xaec6ff : 0xfff4e6, o.sun ?? (NIGHT ? 1.6 : 4.2)); sun.position.copy(keyDir).multiplyScalar(300).add(mid); sun.target.position.copy(mid);
+  const sun = new THREE.DirectionalLight(NIGHT ? 0xffc08a : 0xfff1e3, o.sun ?? (NIGHT ? 1.7 : 4.2)); sun.position.copy(keyDir).multiplyScalar(300).add(mid); sun.target.position.copy(mid);
   sun.castShadow = true; const ss = o.shadowSize || 4096; sun.shadow.mapSize.set(ss, ss); const sc = sun.shadow.camera; sc.left = -125; sc.right = 125; sc.top = 125; sc.bottom = -125; sc.near = 80; sc.far = 640; sun.shadow.bias = -.00018; sun.shadow.normalBias = .05; sun.shadow.radius = 4;
   scene.add(sun, sun.target);
-  const rim = new THREE.DirectionalLight(NIGHT ? 0x5d8dff : 0x86b4ff, o.rim ?? (NIGHT ? 2.0 : 2.4)); rim.position.copy(new THREE.Vector3(.4, .3, -.86).multiplyScalar(260).add(mid)); rim.target.position.copy(mid); scene.add(rim, rim.target);
-  const under = new THREE.DirectionalLight(NIGHT ? 0x2a55d0 : 0x4a7ae0, NIGHT ? 1.8 : 1.5); under.position.copy(new THREE.Vector3(.2, -1, .3).multiplyScalar(200).add(mid)); under.target.position.copy(mid); scene.add(under, under.target);
+  const rim = new THREE.DirectionalLight(NIGHT ? 0xff6a00 : 0xff9a3d, o.rim ?? (NIGHT ? 2.0 : 2.4)); rim.position.copy(new THREE.Vector3(.4, .3, -.86).multiplyScalar(260).add(mid)); rim.target.position.copy(mid); scene.add(rim, rim.target);
+  const under = new THREE.DirectionalLight(NIGHT ? 0xa63203 : 0xd94a05, NIGHT ? 1.8 : 1.5); under.position.copy(new THREE.Vector3(.2, -1, .3).multiplyScalar(200).add(mid)); under.target.position.copy(mid); scene.add(under, under.target);
   const back = makeBackdrop(0, NIGHT, !!o.hq); scene.add(back);
   const pm = new THREE.PMREMGenerator(renderer), envScene = new THREE.Scene(); envScene.add(makeBackdrop(1, NIGHT, !!o.hq)); scene.environment = pm.fromScene(envScene, 0, .1, 4000).texture; pm.dispose();
-  scene.fog = new THREE.FogExp2(new THREE.Color(NIGHT ? '#050f27' : '#081633'), o.fog ?? (NIGHT ? .0015 : .0011));
+  scene.fog = new THREE.FogExp2(new THREE.Color(NIGHT ? '#070402' : '#0d0805'), o.fog ?? (NIGHT ? .0015 : .0011));
 
   const props = new THREE.Group(); scene.add(props);
   if (NIGHT || o.far) scene.add(farIslets());
@@ -566,7 +567,7 @@ export async function createIsland(canvas, o = {}) {
   const core = makeCrystals(info.core.x, info.core.y, info.core.z, 1.25, 7); props.add(core.grp); scene.add(core.light);
   const beamMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { uT: { value: 0 }, uA: { value: 1 } },
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-    fragmentShader: 'varying vec2 vUv; uniform float uT; uniform float uA; void main(){ float y = vUv.y; float fade = pow(clamp(1.0 - y, 0.0, 1.0), 2.2) * smoothstep(0.0, 0.04, y); float pulse = .82 + .18 * sin(y * 46.0 - uT * 5.0); float edge = pow(clamp(sin(vUv.x * 3.14159), 0.0, 1.0), 1.5); gl_FragColor = vec4(vec3(.32, .58, 1.0) * fade * pulse * edge * .42 * uA, 1.0); }' });
+    fragmentShader: 'varying vec2 vUv; uniform float uT; uniform float uA; void main(){ float y = vUv.y; float fade = pow(clamp(1.0 - y, 0.0, 1.0), 2.2) * smoothstep(0.0, 0.04, y); float pulse = .82 + .18 * sin(y * 46.0 - uT * 5.0); float edge = pow(clamp(sin(vUv.x * 3.14159), 0.0, 1.0), 1.5); gl_FragColor = vec4(vec3(1.0, .28, .02) * fade * pulse * edge * .42 * uA, 1.0); }' });
   const BH = o.beamH || 96;
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.8, BH, 24, 1, true), beamMat); beam.position.set(info.core.x, info.core.y + BH / 2, info.core.z); beam.renderOrder = 4; props.add(beam);
   const beamCore = new THREE.Mesh(new THREE.CylinderGeometry(.32, .55, BH, 16, 1, true), beamMat); beamCore.position.copy(beam.position); props.add(beamCore);
@@ -595,7 +596,7 @@ export async function createIsland(canvas, o = {}) {
   const crew = ['fmMinerA', 'fmMinerB', 'fmMinerC'];
   info.galleries.forEach((g, i) => {
     const [dx, dz] = g.dir, x = C.CX + .5 + dx * (C.FR + g.len - .6), z = C.CZ + .5 + dz * (C.FR + g.len - .6);
-    const lead = g.pool === 'foundryusa', m = add(lead ? 'fmMinerA' : crew[i % 3], 10 + i, x, z, 'mine', { y: C.FLOOR + 1, ry: Math.atan2(dx, dz), lamp: lead || i % 2 === 0 }); holdTool(m.f, makePickaxe(world, uni, lead || i % 2 === 0 ? '#3d8bff' : '#e9eef7'));
+    const lead = g.pool === 'foundryusa', m = add(lead ? 'fmMinerA' : crew[i % 3], 10 + i, x, z, 'mine', { y: C.FLOOR + 1, ry: Math.atan2(dx, dz), lamp: lead || i % 2 === 0 }); holdTool(m.f, makePickaxe(world, uni, lead || i % 2 === 0 ? '#ff6a00' : '#f3ece6'));
     if (i % 3 === 1) { const d2 = add(crew[(i + 1) % 3], 40 + i, x - dx * 3 + g.p[0] * 1.1, z - dz * 3 + g.p[1] * 1.1, 'drill', { y: C.FLOOR + 1, ry: Math.atan2(g.p[0], g.p[1]), lamp: true }); holdTool(d2.f, makeDrill(world, uni)); }
   });
   carts.forEach((c, i) => add(crew[(i + 2) % 3], 60 + i, 0, 0, 'pushcart', { cart: c, y: C.FLOOR + 1 }));
@@ -608,12 +609,12 @@ export async function createIsland(canvas, o = {}) {
   for (let i = 0; i < 6; i++) add(hl[(i + 2) % hl.length], 150 + i, 0, 0, 'ringwalk', { y: C.G + 1, rr: C.PIT + 1.6, th0: i * 1.05 + .4, sp: (.05 + i * .006) * (i % 2 ? 1 : -1) });
 
   // chests at every house + gems that arc from the core into them
-  const chestMat = litMaterial(world, { color: new THREE.Color('#a8703a'), roughness: .7 }, uni), chestBand = litMaterial(world, { color: new THREE.Color('#3d8bff'), roughness: .35, metalness: .4, emissive: new THREE.Color('#3d8bff'), emissiveIntensity: .25 }, uni);
+  const chestMat = litMaterial(world, { color: new THREE.Color('#8b5731'), roughness: .7 }, uni), chestBand = litMaterial(world, { color: new THREE.Color('#ff6a00'), roughness: .35, metalness: .4, emissive: new THREE.Color('#ff6a00'), emissiveIntensity: .25 }, uni);
   for (const ch of info.chests) { const g = new THREE.Group(); const b0 = new THREE.Mesh(new THREE.BoxGeometry(.9, .7, .7), chestMat); b0.position.y = .35; const lid = new THREE.Mesh(new THREE.BoxGeometry(.94, .18, .74), chestBand); lid.position.y = .76; g.add(b0, lid); g.position.set(ch.x, ch.y, ch.z); g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); props.add(g); }
-  const gemGeo = new THREE.OctahedronGeometry(.42, 0), gemMat = new THREE.MeshStandardMaterial({ color: new THREE.Color('#6aa4ff'), emissive: new THREE.Color('#3d8bff'), emissiveIntensity: 2.2, roughness: .15, metalness: .1 });
+  const gemGeo = new THREE.OctahedronGeometry(.42, 0), gemMat = new THREE.MeshStandardMaterial({ color: new THREE.Color('#ff9a3d'), emissive: new THREE.Color('#ff5a00'), emissiveIntensity: 2.2, roughness: .15, metalness: .1 });
   const NG = 48, gems = new THREE.InstancedMesh(gemGeo, gemMat, NG); gems.frustumCulled = false; props.add(gems); const dummy = new THREE.Object3D();
   // rising motes around the core and over the island
-  const NM = NIGHT ? 420 : 220, motes = new THREE.InstancedMesh(new THREE.BoxGeometry(NIGHT ? .1 : .16, NIGHT ? .1 : .16, NIGHT ? .1 : .16), new THREE.MeshBasicMaterial({ color: new THREE.Color('#9cc4ff'), transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false }), NM); motes.frustumCulled = false; props.add(motes);
+  const NM = NIGHT ? 420 : 220, motes = new THREE.InstancedMesh(new THREE.BoxGeometry(NIGHT ? .1 : .16, NIGHT ? .1 : .16, NIGHT ? .1 : .16), new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffad68'), transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false }), NM); motes.frustumCulled = false; props.add(motes);
   const moteSeed = []; { const r = mulberry(7); for (let i = 0; i < NM; i++) moteSeed.push([r() * TAU, r() * C.R * .9, r(), .5 + r()]); }
   // night: warm fireflies drifting over the village
   const NFF = NIGHT ? 180 : 0, flies = NFF ? new THREE.InstancedMesh(new THREE.BoxGeometry(.12, .12, .12), new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffc874'), transparent: true, opacity: .95, blending: THREE.AdditiveBlending, depthWrite: false }), NFF) : null;
@@ -643,8 +644,8 @@ export async function createIsland(canvas, o = {}) {
   const clouds = []; {
     const r = mulberry(17), maps = NIGHT ? [cloudSprite2(611), cloudSprite2(612), cloudSprite2(613)] : [cloudSprite()];
     const addCloud = (a, d, y, sc, col, op, spd) => { const m = new THREE.SpriteMaterial({ map: maps[clouds.length % maps.length], color: new THREE.Color(col), transparent: true, opacity: op, depthWrite: false, fog: true }); const sp = new THREE.Sprite(m); sp.scale.set(sc * (NIGHT ? 2.2 : 1.8), sc, 1); sp.position.set(C.CX + Math.cos(a) * d, y, C.CZ + Math.sin(a) * d); sp.userData = { a, d, y, sp: spd }; sp.renderOrder = -2; scene.add(sp); clouds.push(sp); };
-    for (let i = 0; i < 46; i++) { const op = (NIGHT ? .3 : .16) + r() * .16, a = r() * TAU, d = 40 + r() * 230, y = NIGHT ? 8 + r() * 24 : -40 + r() * 34, sc = 60 + r() * 90; addCloud(a, d, y, sc, NIGHT ? (i % 3 ? '#7f95c6' : '#9db0da') : (i % 3 ? '#9fb6e4' : '#c9d7f2'), op, .0015 + r() * .003); }
-    if (NIGHT) for (let i = 0; i < 30; i++) { const a = r() * TAU, d = 170 + r() * 260, y = 36 + r() * 100, sc = 120 + r() * 200; addCloud(a, d, y, sc, i % 2 ? '#6a80b4' : '#8396c4', .2 + r() * .18, .001 + r() * .002); }
+    for (let i = 0; i < 46; i++) { const op = (NIGHT ? .3 : .16) + r() * .16, a = r() * TAU, d = 40 + r() * 230, y = NIGHT ? 8 + r() * 24 : -40 + r() * 34, sc = 60 + r() * 90; addCloud(a, d, y, sc, NIGHT ? (i % 3 ? '#5e5148' : '#7c695b') : (i % 3 ? '#8f7967' : '#b09a88'), op, .0015 + r() * .003); }
+    if (NIGHT) for (let i = 0; i < 30; i++) { const a = r() * TAU, d = 170 + r() * 260, y = 36 + r() * 100, sc = 120 + r() * 200; addCloud(a, d, y, sc, i % 2 ? '#4f443d' : '#66574d', .2 + r() * .18, .001 + r() * .002); }
   }
 
   function update(t) {
