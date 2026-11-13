@@ -1,6 +1,5 @@
-// Moneroom world: one floating island in a black-orange sky. A terraced open mine in the middle with twelve rig halls
-// (one per real mining pool), the Float core at the bottom of the pit that turns the haul into $FLOAT, a village of
-// holders on the rim who receive it, a waterfall off the edge, satellite islets, voxel clouds.
+// Moneroom world: one floating island in a black-orange sky. A terraced RandomX mine in the middle with twelve routing
+// halls, the XMR core at the bottom of the pit, a settlement village on the rim, a waterfall and satellite islets.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -12,8 +11,8 @@ import { makeFigure, makeDrill, makePickaxe, pose, holdTool } from './figures.js
 import { pickSVG } from './pick.js';
 
 export const C = { W: 204, H: 112, D: 204, CX: 102, CZ: 102, G: 80, R: 63, FLOOR: 60, FR: 20, PIT: 30, W0: 5, SH: 3, SI: 2 };
-export const POOLS = ['ocean', 'antpool', 'viabtc', 'f2pool', 'spiderpool', 'marapool', 'luxor', 'secpool', 'binancepool', 'braiinspool', 'foundryusa', 'cloverpool'];
-export const POOL_NAMES = { foundryusa: 'Foundry USA', antpool: 'AntPool', f2pool: 'F2Pool', viabtc: 'ViaBTC', luxor: 'Luxor', marapool: 'MARA Pool', spiderpool: 'SpiderPool', secpool: 'SECPOOL', ocean: 'OCEAN', braiinspool: 'Braiins', binancepool: 'Binance Pool', cloverpool: 'CloverPool', btccom: 'BTC.com' };
+export const POOLS = ['p2pool-main', 'p2pool-mini', 'solo-node', 'dedicated', 'randomx-us', 'randomx-eu', 'randomx-apac', 'low-latency', 'balanced', 'decentralized', 'private-relay', 'failover'];
+export const POOL_NAMES = { 'p2pool-main': 'P2POOL MAIN', 'p2pool-mini': 'P2POOL MINI', 'solo-node': 'SOLO NODE', dedicated: 'DEDICATED', 'randomx-us': 'RANDOMX US', 'randomx-eu': 'RANDOMX EU', 'randomx-apac': 'RANDOMX APAC', 'low-latency': 'LOW LATENCY', balanced: 'BALANCED', decentralized: 'DECENTRALIZED', 'private-relay': 'PRIVATE RELAY', failover: 'FAILOVER' };
 const TAU = Math.PI * 2;
 
 // ---------------------------------------------------------------- island shape
@@ -301,7 +300,7 @@ function swayMat(world, uni, params, key, amp = .06) {
   m.customProgramCacheKey = () => key; return m;
 }
 function logoIsLight(img) { try { const c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d'); g.drawImage(img, 0, 0, 48, 48); const d = g.getImageData(0, 0, 48, 48).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 120) { s += (d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) / 255; n++; } return n ? s / n > .62 : false; } catch (e) { return false; } }
-// pool banner: the real logo on white cloth with a Float-blue band, the name in Geist
+// RandomX route banner on the original cloth geometry
 // SVG logos without width/height draw as nothing on a canvas: give them a size from their viewBox first
 export async function loadLogo(url, px = 512) {
   try {
@@ -322,7 +321,7 @@ async function poolBanner(world, slug, uni, base = 'assets/mines/') {
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.55, 12, 8), swayMat(world, uni, { map, roughness: .85, side: THREE.DoubleSide }, 'fmbanner', .035)); mesh.castShadow = true; mesh.receiveShadow = true; return mesh;
 }
-async function floatFlagTex() {
+async function moneroomFlagTex() {
   const img = await loadImg('assets/brand/moneroom-logo.png');
   return canvasTex(512, 768, (g, w, h) => {
     g.fillStyle = '#0b0704'; g.fillRect(0, 0, w, h);
@@ -581,7 +580,7 @@ export async function createIsland(canvas, o = {}) {
     b.position.set(C.CX + .5 + dx * r0, by, C.CZ + .5 + dz * r0); b.rotation.y = Math.atan2(-dx, -dz); props.add(b); banners.push({ mesh: b, g });
   }));
   // Float flag on the plaza
-  const flagMap = await floatFlagTex();
+  const flagMap = await moneroomFlagTex();
   const flag = new THREE.Group(); { const pole = new THREE.Mesh(new THREE.CylinderGeometry(.09, .11, 10, 12), litMaterial(world, { color: new THREE.Color('#eef2f8'), roughness: .3, metalness: .6 }, uni)); pole.position.y = 5; pole.castShadow = true; const cloth = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3.6, 8, 12), swayMat(world, uni, { map: flagMap, roughness: .9, side: THREE.DoubleSide }, 'fmflag', .09)); cloth.position.set(1.25, 7.9, 0); cloth.castShadow = true; flag.add(pole, cloth); flag.position.set(info.plaza.x, info.plaza.y, info.plaza.z); flag.rotation.y = -info.plaza.a; props.add(flag); }
   // rails + carts on six spokes: haul from the halls to the core
   const spokes = [0, 2, 4, 6, 8, 10].map(k => info.galleries[k]); const carts = [];
