@@ -7,7 +7,7 @@
 .mwrap { position: relative; height: calc((var(--steps, 4) + 1) * 100vh); margin-top: -4.75rem; }
 .mhero { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .mstage { position: absolute; inset: 0; background: var(--bg); }
-.mstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .9s ease; }
+.mstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .9s ease; filter: grayscale(.42) sepia(.46) saturate(1.75) hue-rotate(335deg) contrast(1.08); }
 .mstage canvas.on { opacity: 1; }
 .mposter { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(.72) sepia(.9) saturate(2.7) hue-rotate(338deg) brightness(.62) contrast(1.15); }
 .mshade { position: absolute; inset: 0; pointer-events: none;
@@ -122,7 +122,9 @@
 
 /* ---------------------------------------------------------------- explore hero */
 .xh-mine { position: relative; overflow: hidden; min-height: 15rem; }
-.xh-img { position: absolute; right: 0; top: 0; height: 100%; width: 62%; object-fit: cover; -webkit-mask-image: linear-gradient(to right, transparent, #000 38%); mask-image: linear-gradient(to right, transparent, #000 38%); opacity: .95; }
+.xh-img { position: absolute; right: 0; top: 0; height: 100%; width: 62%; object-fit: cover; -webkit-mask-image: linear-gradient(to right, transparent, #000 38%); mask-image: linear-gradient(to right, transparent, #000 38%); opacity: .95; filter: grayscale(.5) sepia(.55) saturate(1.8) hue-rotate(335deg) brightness(.72) contrast(1.12); }
+
+.ctaband > img { filter: grayscale(.5) sepia(.55) saturate(1.8) hue-rotate(335deg) brightness(.72) contrast(1.12); }
 @media (max-width: 760px) { .xh-img { width: 100%; opacity: .28; } }
 
 /* ---------------------------------------------------------------- create */
