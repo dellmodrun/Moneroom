@@ -47,6 +47,9 @@ img, svg, canvas { display: block; max-width: 100%; }
 .wbtn { display: inline-flex; align-items: center; gap: .5rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--line-strong); background: var(--surface); padding: 0 1rem; font-family: var(--mono); font-size: .875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s; }
 .wbtn:hover { background: var(--card-hover); }
 .wbtn img { width: 1.1rem; height: 1.1rem; border-radius: .3rem; }
+.xbtn { display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none; border-radius: 9999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); transition: background .15s, border-color .15s, transform .15s; }
+.xbtn:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-1px); }
+.xbtn svg { width: .9rem; height: .9rem; fill: currentColor; }
 .ca-hdr { display: none; }
 @media (min-width: 900px) { .ca-hdr { display: inline-flex; } }
 
@@ -474,7 +477,9 @@ textarea.inp { height: 5.25rem; padding: .75rem 1rem; resize: vertical; }
   .hdr { padding: 1rem; }
   .brand { font-size: 1.15rem; gap: .5rem; }
   .brand img { width: 1.6rem; height: 1.35rem; }
+  .hdr-r .navlink { display: none; }
   .wbtn { height: 2.1rem; padding: 0 .8rem; font-size: .78rem; }
+  .xbtn { width: 2.1rem; height: 2.1rem; }
   .legs-l { padding: 1.4rem; }
   .legs h2, .sec-h { font-size: 1.6rem; }
   .xhero { padding: 1.5rem; }
