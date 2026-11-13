@@ -42,15 +42,21 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const XMR_MARK = 'assets/pairs/WXMRyRZhsa19ety5erZhHg4N3xj3EVN92u94422teJp.png';
 
-// RandomX routing profiles. P2Pool is preferred; dedicated and regional routes
-// let each mine choose its own operating policy.
+// Active Monero/RandomX pools. The same slugs are used by the cards, launch
+// flow and 3D mine so every pool always carries its corresponding brand mark.
 export const POOLS = [
-  { s: 'p2pool-main', n: 'P2Pool Main', tag: 'P2' }, { s: 'p2pool-mini', n: 'P2Pool Mini', tag: 'PM' },
-  { s: 'solo-node', n: 'Solo Node', tag: 'SN' }, { s: 'dedicated', n: 'Dedicated Cluster', tag: 'DC' },
-  { s: 'randomx-us', n: 'RandomX · US', tag: 'US' }, { s: 'randomx-eu', n: 'RandomX · EU', tag: 'EU' },
-  { s: 'randomx-apac', n: 'RandomX · APAC', tag: 'AP' }, { s: 'low-latency', n: 'Low Latency', tag: 'LL' },
-  { s: 'balanced', n: 'Balanced Route', tag: 'BR' }, { s: 'decentralized', n: 'Decentralized', tag: 'DX' },
-  { s: 'private-relay', n: 'Private Relay', tag: 'PR' }, { s: 'failover', n: 'Failover Route', tag: 'FR' },
+  { s: 'supportxmr', n: 'SupportXMR', tag: 'SX' },
+  { s: 'nanopool', n: 'Nanopool', tag: 'NP' },
+  { s: 'kryptex', n: 'Kryptex Pool', tag: 'KX' },
+  { s: 'c3pool', n: 'C3Pool', tag: 'C3' },
+  { s: 'hashvault', n: 'HashVault', tag: 'HV' },
+  { s: 'p2pool', n: 'P2Pool Main', tag: 'P2' },
+  { s: 'p2pool-mini', n: 'P2Pool Mini', tag: 'PM' },
+  { s: 'moneroocean', n: 'MoneroOcean', tag: 'MO' },
+  { s: 'herominers', n: 'HeroMiners', tag: 'HM' },
+  { s: 'xmrpool-eu', n: 'XMRPool.eu', tag: 'XE' },
+  { s: 'rplant-xyz', n: 'RPlant', tag: 'RP' },
+  { s: '1miner-net', n: '1Miner', tag: '1M' },
 ];
 const poolOf = s => POOLS.find(p => p.s === s) || POOLS[0];
 
@@ -87,23 +93,7 @@ const ICON = {
   arrow: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
 };
 const logo = (p, size = 26) => p && p.logo ? `<img src="${p.logo}" alt="" width="${size}" height="${size}" loading="lazy">` : `<span class="ini" style="width:${size}px;height:${size}px">${esc((p && p.t || '?').slice(0, 2))}</span>`;
-const ROUTE_ICON = {
-  server: '<path d="M5 4h14v6H5zM5 14h14v6H5z"/><path d="M8 7h.01M8 17h.01M12 7h4M12 17h4"/>',
-  node: '<path d="M12 3 4.5 7v10L12 21l7.5-4V7z"/><path d="m4.5 7 7.5 4 7.5-4M12 11v10"/>',
-  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>',
-  bolt: '<path d="m13 2-8 12h6l-1 8 9-13h-6z"/>',
-  balance: '<path d="M12 3v18M5 6h14M7 6l-4 7h8zM17 6l-4 7h8zM8 21h8"/>',
-  network: '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="m10.8 7.2-4.5 8.6m6.9-8.6 4.5 8.6M7.5 18h9"/>',
-  shield: '<path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/>',
-  failover: '<path d="M7 7h10l-3-3m3 13H7l3 3M19 7l2 2-2 2M5 17l-2-2 2-2"/>',
-};
-const routeKind = s => s.startsWith('p2pool') ? 'monero' : s === 'solo-node' ? 'node' : s === 'dedicated' ? 'server' : s.startsWith('randomx-') ? 'globe' : s === 'low-latency' ? 'bolt' : s === 'balanced' ? 'balance' : s === 'decentralized' ? 'network' : s === 'private-relay' ? 'shield' : 'failover';
-const poolTile = (pl, size = 40) => {
-  const kind = routeKind(pl.s);
-  return kind === 'monero'
-    ? `<span class="ptile route-logo" style="width:${size}px;height:${size}px"><img src="${XMR_MARK}" alt=""></span>`
-    : `<span class="ptile route-logo" style="width:${size}px;height:${size}px"><svg viewBox="0 0 24 24" aria-hidden="true">${ROUTE_ICON[kind]}</svg></span>`;
-};
+const poolTile = (pl, size = 40) => `<span class="ptile pool-logo" style="width:${size}px;height:${size}px"><img src="assets/mines/${esc(pl.s)}.png" alt="${esc(pl.n)} logo" loading="lazy"></span>`;
 const xmrTok = (size = 18) => `<img class="ftok" src="${XMR_MARK}" alt="XMR" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
 const catLabel = th => ({ xStock: 'xStock', Sunrise: 'Sunrise', PreStock: 'PreStock', Crypto: 'Crypto', Leverage: 'Leverage', Commodity: 'Commodity', Basket: 'Basket', Tessera: 'Tessera', Custom: 'Custom' })[th] || th;
 
@@ -257,8 +247,8 @@ const poolLive = s => live.pools && live.pools.m[s];
 // ================================================================ HOME
 const STEPS = [
   { k: '01 · Launch', h: 'Launch on Pump.fun.', p: 'Create a public Solana market. The coin becomes the funding surface for its own private mine.', x: 'pair' },
-  { k: '02 · RandomX', h: 'Creator rewards buy compute.', p: 'Claimed creator rewards flow into the coin’s mining vault and purchase RandomX hashrate through the route chosen at launch.', x: 'pools' },
-  { k: '03 · XMR', h: 'The mine produces native XMR.', p: 'P2Pool or the selected route pays the mine in Monero. A view-only treasury makes incoming rewards auditable without exposing a spend key.', x: 'xmr' },
+  { k: '02 · RandomX', h: 'Creator rewards buy compute.', p: 'Claimed creator rewards flow into the coin’s mining vault and purchase RandomX hashrate through the mining pool chosen at launch.', x: 'pools' },
+  { k: '03 · XMR', h: 'The mine produces native XMR.', p: 'The selected pool pays the mine in Monero. A view-only treasury makes incoming rewards auditable without exposing a spend key.', x: 'xmr' },
   { k: '04 · Private claim', h: 'Holders settle privately.', p: 'Each epoch turns a public holder snapshot into one-time claim rights. XMR is sent to a fresh Monero address, outside the public Solana graph.', x: 'holders' },
 ];
 function viewHome() {
@@ -269,8 +259,8 @@ function viewHome() {
         : `<div class="mx-hold"><span>${xmrTok(20)}</span><b>Private XMR claim</b><span class="muted">one epoch at a time</span></div>`;
   VIEW.innerHTML = `<div class="mwrap" id="mwrap" style="--steps:${STEPS.length}">${heroHtml}</div>
   <section class="sec" id="pools">
-    <div class="rv secrow"><div><div class="sec-k">RandomX routes</div><h2 class="sec-h">One mine, several ways to route compute.</h2><p class="sec-p">Choose decentralized P2Pool, a solo node, or a regional route. The route can fail over without changing the coin or its settlement policy.</p></div><div class="netchip" id="netchip"><span class="dot"></span>Algorithm <b id="net-hr">RandomX</b></div></div>
-    <div class="pgrid12 rv" id="pgrid">${POOLS.map(p => `<a class="poolc" href="/create?pool=${p.s}" data-link data-pool="${p.s}">${poolTile(p, 46)}<div class="pc-n"><b>${esc(p.n)}</b><small data-f="share">Ready</small></div><div class="pc-b"><span data-f="hr">XMR</span><span data-f="blocks">Route</span></div></a>`).join('')}</div>
+    <div class="rv secrow"><div><div class="sec-k">Monero mining pools</div><h2 class="sec-h">One mine, your choice of active pool.</h2><p class="sec-p">Choose decentralized P2Pool or another established RandomX pool. The pool can change without changing the coin or its native XMR settlement policy.</p></div><div class="netchip" id="netchip"><span class="dot"></span>Algorithm <b id="net-hr">RandomX</b></div></div>
+    <div class="pgrid12 rv" id="pgrid">${POOLS.map(p => `<a class="poolc" href="/create?pool=${p.s}" data-link data-pool="${p.s}">${poolTile(p, 46)}<div class="pc-n"><b>${esc(p.n)}</b><small data-f="share">Ready</small></div><div class="pc-b"><span data-f="hr">XMR</span><span data-f="blocks">Pool</span></div></a>`).join('')}</div>
   </section>
   <section class="sec">
     <div class="flc grad rv" id="flc">
@@ -319,7 +309,7 @@ function viewHome() {
   // pools
   const pools = () => {
     const P = live.pools; if (!P) return;
-    $$('#pgrid [data-pool]').forEach(a => { const d = P.m[a.dataset.pool]; const set = (f, v) => { const e = $(`[data-f="${f}"]`, a); if (e && e.textContent !== v) e.textContent = v; }; set('share', d ? d.status : 'Ready'); set('hr', 'XMR'); set('blocks', 'Route'); });
+    $$('#pgrid [data-pool]').forEach(a => { const d = P.m[a.dataset.pool]; const set = (f, v) => { const e = $(`[data-f="${f}"]`, a); if (e && e.textContent !== v) e.textContent = v; }; set('share', d ? d.status : 'Ready'); set('hr', 'XMR'); set('blocks', 'Pool'); });
   };
   // XMR market
   const fl = () => {
@@ -415,7 +405,7 @@ async function islandStory() {
 const CATS = ['All', 'Crypto', 'xStock', 'Sunrise', 'PreStock', 'Basket', 'Leverage', 'Commodity', 'Custom'];
 function viewCreate() {
   const q = new URLSearchParams(location.search);
-  const F = FMAPP.F = { pair: byId.get(q.get('pair')) || null, mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'foundryusa', ticker: '', name: '', file: null, preview: '', web: '', x: '', tg: '', desc: '', tier: 0, buy: '', cat: 'All', find: '' };
+  const F = FMAPP.F = { pair: byId.get(q.get('pair')) || null, mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool', ticker: '', name: '', file: null, preview: '', web: '', x: '', tg: '', desc: '', tier: 0, buy: '', cat: 'All', find: '' };
   VIEW.innerHTML = `<div class="page">
   <h1 class="ph1">Launch a mine on Float</h1>
   <p class="psub">A real Float coin, paired with a Float asset. Its fees run mining rigs, and every reward goes to holders in $FLOAT.</p>
@@ -595,7 +585,7 @@ async function firstBuy(mint, sol, btn) {
 // ================================================================ PUMP.FUN LAUNCH + MINE CONFIGURATION
 function viewCreateV2() {
   const q = new URLSearchParams(location.search);
-  const F = { mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool-main', ticker: '', name: '', desc: '', web: '', x: '', tg: '', xmr: '', buy: '', file: null, preview: '' };
+  const F = { mine: POOLS.some(p => p.s === q.get('pool')) ? q.get('pool') : 'p2pool', ticker: '', name: '', desc: '', web: '', x: '', tg: '', xmr: '', buy: '', file: null, preview: '' };
   VIEW.innerHTML = `<div class="page">
     <h1 class="ph1">Launch a coin</h1>
     <p class="psub">Create the Pump.fun coin inside Moneroom. The same launch binds its creator rewards to a RandomX route and native XMR settlement.</p>
@@ -608,7 +598,7 @@ function viewCreateV2() {
         <label class="drop" id="lc-drop" style="margin-top:1rem"><input type="file" id="lc-img" accept="image/png,image/jpeg,image/gif,image/webp"><span id="lc-imgl">${ICON.plus} Upload PNG, JPG, GIF or WebP</span></label>
         <div class="two three" style="margin-top:1rem"><input class="inp" id="lc-web" placeholder="Website"><input class="inp" id="lc-x" placeholder="X / Twitter"><input class="inp" id="lc-tg" placeholder="Telegram"></div>
       </section>
-      <section class="card step"><div class="step-h"><span class="num-c">3</span><div><h2>Choose the RandomX route</h2><p>P2Pool is the default. Regional, dedicated and failover routes keep the same native XMR output.</p></div></div>
+      <section class="card step"><div class="step-h"><span class="num-c">3</span><div><h2>Choose the mining pool</h2><p>Pick decentralized P2Pool or another active Monero pool. Every option settles mining output in native XMR.</p></div></div>
         <div class="pools" id="c-pools" style="margin-top:1rem">${POOLS.map(p => `<button class="pchoice ${p.s === F.mine ? 'on' : ''}" data-m="${p.s}">${poolTile(p, 34)}<div style="min-width:0"><b>${esc(p.n)}</b><small>RandomX · XMR</small></div><span class="pck">${ICON.check}</span></button>`).join('')}</div>
       </section>
       <section class="card step"><div class="step-h"><span class="num-c">4</span><div><h2>Set the private settlement address</h2><p>Use a fresh Monero address. It is used for XMR settlement only and is never placed in the token metadata.</p></div></div>
@@ -625,7 +615,7 @@ function viewCreateV2() {
         <div class="rv-coin"><span class="ph" id="lr-ph">?</span><div><b id="lr-tk">$TICKER</b><small id="lr-name">Your coin</small></div></div>
         <div class="rv-rows"><div><span>Market</span><b>Pump.fun</b></div>
         <div><span>Funding</span><b>Creator rewards</b></div>
-        <div><span>Route</span><b id="r-pool">${esc(poolOf(F.mine).n)}</b></div>
+        <div><span>Pool</span><b id="r-pool">${esc(poolOf(F.mine).n)}</b></div>
         <div><span>Algorithm</span><b>RandomX</b></div>
         <div><span>Output</span><b>${xmrTok(14)} Native XMR</b></div>
         <div><span>Initial buy</span><b id="lr-buy">—</b></div>
@@ -695,8 +685,8 @@ async function viewCoin(mint) {
     <div class="card chead"><img class="av" src="${esc(c.image)}" alt=""><div style="min-width:0"><h1>$${esc(c.ticker)} <small>${esc(c.name)}</small></h1><span class="anchip">Market <b>Pump.fun</b></span> <span class="minechip inl">${poolTile(pl, 16)}${esc(pl.n)}</span>${soc ? `<div class="soc">${soc}</div>` : ''}</div></div>
     <div class="card chart-card"><div class="chart-top"><div class="tf" id="cp-tf"><button data-r="3600">1H</button><button data-r="14400">4H</button><button class="on" data-r="86400">1D</button><button data-r="604800">7D</button><button data-r="0">ALL</button></div><div class="chart-v" id="cp-fdv">${c.fdvUsd ? usd(c.fdvUsd) : usd(20000)}</div></div><div class="chart"><canvas id="cp-cv"></canvas></div></div>
     <div class="card minec"><div class="kk"><span class="dt"></span>The mine <em>· running</em></div>
-      <div class="mine-h">${poolTile(pl, 44)}<div><b>${esc(pl.n)}</b><small id="cp-ps">RandomX route ready</small></div><span class="mine-to">${xmrTok(18)}Native XMR output</span></div>
-      <div class="pgrid4"><div><small>Algorithm</small><b>RandomX</b></div><div><small>Route</small><b id="cp-hr">${esc(pl.tag)}</b></div><div><small>XMR</small><b id="cp-fp">—</b></div><div><small>Settlement</small><b>Private claim</b></div></div>
+      <div class="mine-h">${poolTile(pl, 44)}<div><b>${esc(pl.n)}</b><small id="cp-ps">RandomX pool ready</small></div><span class="mine-to">${xmrTok(18)}Native XMR output</span></div>
+      <div class="pgrid4"><div><small>Algorithm</small><b>RandomX</b></div><div><small>Pool</small><b id="cp-hr">${esc(pl.tag)}</b></div><div><small>XMR</small><b id="cp-fp">—</b></div><div><small>Settlement</small><b>Private claim</b></div></div>
       <p class="pnote">Claimed creator rewards fund this coin’s RandomX route. Completed mining epochs settle as native XMR to fresh Monero addresses.</p></div>
     <div class="card grad-card">${c.status === 'graduated' ? `<div><b>Graduated on Pump.fun</b><div class="gs">Market liquidity has migrated to PumpSwap</div></div>` : `<div><b>Pump.fun bonding curve</b><div class="prog"><i style="width:${Math.max(2, Math.min(100, (c.progress || 0) * 100)).toFixed(1)}%"></i></div></div><div class="muted" style="font-size:.875rem">${((c.progress || 0) * 100).toFixed(1)}% to graduation</div>`}</div>
     <div class="card about"><div class="about-h">About</div>
@@ -743,9 +733,9 @@ async function viewCoin(mint) {
 
 // ================================================================ MINES (live pools)
 function viewMines() {
-  VIEW.innerHTML = `<div class="page"><h1 class="ph1">Mines</h1><p class="psub">RandomX routes available to Moneroom coins. Route policy can change without changing the token or its XMR settlement rules.</p>
+  VIEW.innerHTML = `<div class="page"><h1 class="ph1">Mines</h1><p class="psub">Active Monero mining pools available to Moneroom coins. Pool selection can change without changing the token or its XMR settlement rules.</p>
     <div class="stats4"><div class="card stat"><small>Algorithm</small><b>RandomX</b><p>CPU-friendly proof of work</p></div><div class="card stat"><small>Settlement asset</small><b>XMR</b><p>Native Monero output</p></div><div class="card stat"><small>Preferred route</small><b>P2Pool</b><p>Decentralized pool mining</p></div><div class="card stat"><small>XMR market</small><b id="mn-f">—</b><p id="mn-fc">Price, live</p></div></div>
-    <div class="tbl"><div class="tbl-scroll"><table><thead><tr><th>#</th><th>Route</th><th>Model</th><th>Output</th><th class="r col-hide">Audit</th><th class="r"></th></tr></thead><tbody>${POOLS.map((p, i) => `<tr class="ours"><td class="muted">${i + 1}</td><td><div class="tas">${poolTile(p, 28)}<div><b>${esc(p.n)}</b><small>RandomX route</small></div></div></td><td>${p.s.includes('p2pool') || p.s === 'decentralized' ? 'Decentralized' : p.s === 'solo-node' ? 'Self-hosted' : 'Managed routing'}</td><td>Native XMR</td><td class="r col-hide">View-only treasury</td><td class="r"><a class="minebtn" href="/create?pool=${p.s}" data-link>Select</a></td></tr>`).join('')}</tbody></table></div></div></div>`;
+    <div class="tbl"><div class="tbl-scroll"><table><thead><tr><th>#</th><th>Pool</th><th>Model</th><th>Output</th><th class="r col-hide">Audit</th><th class="r"></th></tr></thead><tbody>${POOLS.map((p, i) => `<tr class="ours"><td class="muted">${i + 1}</td><td><div class="tas">${poolTile(p, 28)}<div><b>${esc(p.n)}</b><small>RandomX pool</small></div></div></td><td>${p.s.startsWith('p2pool') ? 'Decentralized' : 'Mining pool'}</td><td>Native XMR</td><td class="r col-hide">View-only treasury</td><td class="r"><a class="minebtn" href="/create?pool=${p.s}" data-link>Select</a></td></tr>`).join('')}</tbody></table></div></div></div>`;
   const xmr = () => { if (!live.xmr) return; $('#mn-f').textContent = price(live.xmr.price); const e = $('#mn-fc'); e.textContent = pct(live.xmr.chg) + ' in 24h'; e.className = cls(live.xmr.chg); };
   xmr(); live.subs.add(k => { if (k === 'xmr') xmr(); });
 }
@@ -773,7 +763,7 @@ function viewDocs() {
   <h2 id="launch">Public launch</h2>
   <p>The coin is created and traded on Pump.fun. Its contract address, trades and holder balances are public Solana data. Moneroom indexes those public facts to calculate eligibility; it does not make the Solana token private.</p>
   <h2 id="mine">RandomX mine</h2>
-  <p>Each reward cycle allocates 85% of claimed creator rewards to RandomX compute. P2Pool is the preferred decentralized route, while solo, regional and failover profiles are available for operational resilience. The mining output remains native XMR.</p>
+  <p>Each reward cycle allocates 85% of claimed creator rewards to RandomX compute. P2Pool provides a decentralized option, while established Monero pools provide additional operating choices. The mining output remains native XMR.</p>
   <h2 id="claim">Private claims</h2>
   <p>At an epoch boundary, Moneroom commits to an eligibility snapshot derived from public holder balances. Each eligible allocation becomes a one-time claim. The holder supplies a fresh Monero address; after settlement, the claim is nullified so it cannot be used twice.</p>
   <p>The recipient address is not written into token metadata or a public Solana transfer. Monero one-time addresses and confidential transaction data keep the XMR destination graph separate from the public market graph.</p>

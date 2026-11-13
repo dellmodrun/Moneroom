@@ -1,4 +1,4 @@
-// Moneroom world: one floating island in a black-orange sky. A terraced RandomX mine in the middle with twelve routing
+// Moneroom world: one floating island in a black-orange sky. A terraced RandomX mine in the middle with twelve pool
 // halls, the XMR core at the bottom of the pit, a settlement village on the rim, a waterfall and satellite islets.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -11,8 +11,8 @@ import { makeFigure, makeDrill, makePickaxe, pose, holdTool } from './figures.js
 import { pickSVG } from './pick.js';
 
 export const C = { W: 204, H: 112, D: 204, CX: 102, CZ: 102, G: 80, R: 63, FLOOR: 60, FR: 20, PIT: 30, W0: 5, SH: 3, SI: 2 };
-export const POOLS = ['p2pool-main', 'p2pool-mini', 'solo-node', 'dedicated', 'randomx-us', 'randomx-eu', 'randomx-apac', 'low-latency', 'balanced', 'decentralized', 'private-relay', 'failover'];
-export const POOL_NAMES = { 'p2pool-main': 'P2POOL MAIN', 'p2pool-mini': 'P2POOL MINI', 'solo-node': 'SOLO NODE', dedicated: 'DEDICATED', 'randomx-us': 'RANDOMX US', 'randomx-eu': 'RANDOMX EU', 'randomx-apac': 'RANDOMX APAC', 'low-latency': 'LOW LATENCY', balanced: 'BALANCED', decentralized: 'DECENTRALIZED', 'private-relay': 'PRIVATE RELAY', failover: 'FAILOVER' };
+export const POOLS = ['supportxmr', 'nanopool', 'kryptex', 'c3pool', 'hashvault', 'p2pool', 'p2pool-mini', 'moneroocean', 'herominers', 'xmrpool-eu', 'rplant-xyz', '1miner-net'];
+export const POOL_NAMES = { supportxmr: 'SUPPORTXMR', nanopool: 'NANOPOOL', kryptex: 'KRYPTEX', c3pool: 'C3POOL', hashvault: 'HASHVAULT', p2pool: 'P2POOL MAIN', 'p2pool-mini': 'P2POOL MINI', moneroocean: 'MONEROOCEAN', herominers: 'HEROMINERS', 'xmrpool-eu': 'XMRPOOL.EU', 'rplant-xyz': 'RPLANT', '1miner-net': '1MINER' };
 const TAU = Math.PI * 2;
 
 // ---------------------------------------------------------------- island shape
@@ -300,7 +300,7 @@ function swayMat(world, uni, params, key, amp = .06) {
   m.customProgramCacheKey = () => key; return m;
 }
 function logoIsLight(img) { try { const c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d'); g.drawImage(img, 0, 0, 48, 48); const d = g.getImageData(0, 0, 48, 48).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 120) { s += (d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) / 255; n++; } return n ? s / n > .62 : false; } catch (e) { return false; } }
-// RandomX route banner on the original cloth geometry
+// Monero pool banner on the original cloth geometry
 // SVG logos without width/height draw as nothing on a canvas: give them a size from their viewBox first
 export async function loadLogo(url, px = 512) {
   try {
@@ -312,7 +312,7 @@ export async function loadLogo(url, px = 512) {
   } catch (e) { return loadImg(url); }
 }
 async function poolBanner(world, slug, uni, base = 'assets/mines/') {
-  const img = await loadLogo(base + slug + '.svg'), light = img ? logoIsLight(img) : false;
+  const img = await loadImg(base + slug + '.png'), light = img ? logoIsLight(img) : false;
   const map = canvasTex(640, 480, (g, w, h) => {
     g.fillStyle = light ? '#211006' : '#f8f3ed'; g.fillRect(0, 0, w, h);
     g.fillStyle = '#ff6a00'; g.fillRect(0, 0, w, 18); g.fillStyle = light ? '#ff6a00' : '#512006'; g.fillRect(0, h - 12, w, 12);
@@ -595,7 +595,7 @@ export async function createIsland(canvas, o = {}) {
   const crew = ['fmMinerA', 'fmMinerB', 'fmMinerC'];
   info.galleries.forEach((g, i) => {
     const [dx, dz] = g.dir, x = C.CX + .5 + dx * (C.FR + g.len - .6), z = C.CZ + .5 + dz * (C.FR + g.len - .6);
-    const lead = g.pool === 'foundryusa', m = add(lead ? 'fmMinerA' : crew[i % 3], 10 + i, x, z, 'mine', { y: C.FLOOR + 1, ry: Math.atan2(dx, dz), lamp: lead || i % 2 === 0 }); holdTool(m.f, makePickaxe(world, uni, lead || i % 2 === 0 ? '#ff6a00' : '#f3ece6'));
+    const lead = g.pool === 'supportxmr', m = add(lead ? 'fmMinerA' : crew[i % 3], 10 + i, x, z, 'mine', { y: C.FLOOR + 1, ry: Math.atan2(dx, dz), lamp: lead || i % 2 === 0 }); holdTool(m.f, makePickaxe(world, uni, lead || i % 2 === 0 ? '#ff6a00' : '#f3ece6'));
     if (i % 3 === 1) { const d2 = add(crew[(i + 1) % 3], 40 + i, x - dx * 3 + g.p[0] * 1.1, z - dz * 3 + g.p[1] * 1.1, 'drill', { y: C.FLOOR + 1, ry: Math.atan2(g.p[0], g.p[1]), lamp: true }); holdTool(d2.f, makeDrill(world, uni)); }
   });
   carts.forEach((c, i) => add(crew[(i + 2) % 3], 60 + i, 0, 0, 'pushcart', { cart: c, y: C.FLOOR + 1 }));
