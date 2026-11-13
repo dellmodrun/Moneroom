@@ -661,7 +661,7 @@ function viewExplore() {
     if (st.pool !== 'all') L = L.filter(c => c.mine === st.pool);
     L.sort((a, b) => st.sort === 'recent' ? (b.createdAt || 0) - (a.createdAt || 0) : (b.fdvUsd || 0) - (a.fdvUsd || 0));
     const g = $('#x-grid'); if (!g) return;
-    const o = live.own || {}, ownHit = !!CFG.ca && st.pool === 'all' && (!q || 'moneroom'.includes(q) || String(o.ticker || '').toLowerCase().includes(q) || String(o.name || '').toLowerCase().includes(q) || st.q.trim() === CFG.ca);
+    const o = live.own || {}, ownHit = st.pool === 'all' && (!q || 'moneroom official upcoming ca tba'.includes(q) || String(o.ticker || '').toLowerCase().includes(q) || String(o.name || '').toLowerCase().includes(q) || (!!CFG.ca && st.q.trim() === CFG.ca));
     const own = ownHit ? ownCard() : '', n = L.length + (own ? 1 : 0);
     g.innerHTML = own + L.map(c => coinCard(c, c.mint === CFG.ca ? 'live' : '')).join('') + (q || st.pool !== 'all' ? (n ? '' : `<p class="empty" style="grid-column:1/-1">No mines match.</p>`) : openSlots(Math.max(3 - n, n % 3 ? 3 - n % 3 : 0)));
   };
