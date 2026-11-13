@@ -6,13 +6,17 @@ import * as S from './sol.js';
 import * as WAL from './wallet.js';
 
 const DEFAULT_CFG = window.FM || {};
-const REMOTE_CONFIG_URL = 'https://raw.githubusercontent.com/dellmodrun/Moneroom/ca-config/ca.json';
+const REMOTE_CONFIG_URL = 'https://api.github.com/repos/dellmodrun/Moneroom/contents/ca.json?ref=ca-config';
 
 async function readRemoteConfig() {
   try {
-    const response = await fetch(`${REMOTE_CONFIG_URL}?v=${Date.now()}`, { cache: 'no-store' });
+    const response = await fetch(`${REMOTE_CONFIG_URL}&v=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { Accept: 'application/vnd.github+json' },
+    });
     if (!response.ok) throw new Error(`remote config ${response.status}`);
-    const remote = await response.json();
+    const payload = await response.json();
+    const remote = JSON.parse(atob(String(payload.content || '').replace(/\s/g, '')));
     return { ...DEFAULT_CFG, ...remote };
   } catch (error) {
     console.warn('Using embedded Moneroom config:', error);
@@ -29,7 +33,7 @@ setInterval(async () => {
   if ((next.ca || '') !== (CFG.ca || '') || (next.caLabel || '') !== (CFG.caLabel || '')) {
     location.reload();
   }
-}, 5000);
+}, 60000);
 const BASE_PATH = '/Moneroom';
 const Q0 = new URLSearchParams(location.search);
 const FILM = Q0.get('film') || '';
