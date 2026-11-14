@@ -5,8 +5,28 @@ import * as WAL from './wallet.js';
 
 const DEFAULT_CFG = window.FM || {};
 const REMOTE_CONFIG_URL = 'https://api.github.com/repos/dellmodrun/Moneroom/contents/ca.json?ref=ca-config';
+const SUPABASE_URL = 'https://snwthyespgghvvlktyyu.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_lok_cbkXwfsPKEpOTTCl4Q_6aqpNf0v';
+
+const caConfig = value => {
+  const ca = String(value || '').trim();
+  return ca && ca.toLowerCase() !== 'tba'
+    ? { ...DEFAULT_CFG, ca, caLabel: '' }
+    : { ...DEFAULT_CFG, ca: '', caLabel: 'TBA' };
+};
 
 async function readRemoteConfig() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/site_config?id=eq.moneroom&select=contract_address`, {
+      cache: 'no-store',
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`live config ${response.status}`);
+    const rows = await response.json();
+    if (rows && rows[0]) return caConfig(rows[0].contract_address);
+  } catch (error) {
+    console.warn('Using Moneroom config branch fallback:', error);
+  }
   try {
     const response = await fetch(`${REMOTE_CONFIG_URL}&v=${Date.now()}`, {
       cache: 'no-store',
@@ -20,6 +40,25 @@ async function readRemoteConfig() {
     console.warn('Using embedded Moneroom config:', error);
     return { ...DEFAULT_CFG };
   }
+}
+
+function loadSupabase() {
+  if (window.supabase?.createClient) return Promise.resolve(window.supabase);
+  return new Promise((resolve, reject) => {
+    const old = document.querySelector('script[data-moneroom-supabase]');
+    if (old) {
+      old.addEventListener('load', () => resolve(window.supabase), { once: true });
+      old.addEventListener('error', reject, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = new URL('assets/supabase-js.min.js?v=1', document.baseURI).href;
+    script.async = true;
+    script.dataset.moneroomSupabase = 'true';
+    script.onload = () => resolve(window.supabase);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
 
 const CFG = { ...DEFAULT_CFG };
@@ -793,6 +832,9 @@ render();
 // applied after first paint so a slow config request can never hold up the UI.
 async function syncRemoteConfig() {
   const next = await readRemoteConfig();
+  applyRemoteConfig(next);
+}
+function applyRemoteConfig(next) {
   if ((next.ca || '') === (CFG.ca || '') && (next.caLabel || '') === (CFG.caLabel || '')) return;
   Object.assign(CFG, next);
   $('#hdrca')?.remove();
@@ -804,4 +846,14 @@ async function syncRemoteConfig() {
 syncRemoteConfig();
 setInterval(syncRemoteConfig, 60000);
 addEventListener('visibilitychange', () => { if (!document.hidden) syncRemoteConfig(); });
+loadSupabase().then(library => {
+  const client = library.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  client.channel('moneroom-ca-live')
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'site_config', filter: 'id=eq.moneroom',
+    }, payload => applyRemoteConfig(caConfig(payload.new?.contract_address)))
+    .subscribe();
+}).catch(error => console.warn('Moneroom realtime unavailable:', error));
 if (FILM) { document.body.classList.add('fm-film'); import('./filmmode.js').then(m => m.start && m.start(FILM, FMAPP)).catch(() => { }); }
